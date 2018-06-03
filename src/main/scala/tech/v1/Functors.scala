@@ -1,4 +1,4 @@
-package tech
+package tech.v1
 
 object Functors {
 

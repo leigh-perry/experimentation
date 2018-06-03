@@ -1,5 +1,4 @@
-package demo
-
+package tech.v2
 
 object ApplicativeViaAp {
   trait Functor[F[_]] {
