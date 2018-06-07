@@ -20,7 +20,7 @@ object Induction {
   //    override val name: String = "."
   //  }
 
-  implicit def tupleInduction[A, B](implicit eva: Named[A], evb: Named[B]): Named[(A, B)] = {
+  implicit def tuple2Induction[A, B](implicit eva: Named[A], evb: Named[B]): Named[(A, B)] = {
     new Named[(A, B)] {
       val name = {
         val a = eva.name
@@ -31,20 +31,18 @@ object Induction {
     }
   }
 
-  final case class Something(e0: Int, e1: Char, e2: String, e3: Int) extends Ordered[Something] {
-    override def compare(that: Something): Int = ???
-  }
-
-  val tupled: (Int, Char, String, Int) = Something.unapply(Something(1, 'c', "asdf", 2)).get // !!
+  //  final case class Something(e0: Int, e1: Char, e2: String, e3: Int)
+  //  val tupled: (Int, Char, String, Int) = Something.unapply(Something(1, 'c', "asdf", 2)).get // !!
 
   def main(args: Array[String]) = {
     println(implicitly[Named[Int]].name)
     println(implicitly[Named[(String, Int)]].name)
     println(implicitly[Named[(Int, (Char, (String, Int)))]].name)
+    println(implicitly[Named[(((((Int, Int), (Int, Int)), ((Int, Int), (Int, Int))), (((Int, Int), (Int, Int)), ((Int, Int), (Int, Int)))), (Char, (String, Int)))]].name)
 
     println("-----")
     //println(implicitly[Named[(Int, Char, String, Int)]].name)
-    println(tupled)
+    //println(tupled)
   }
 
 }
