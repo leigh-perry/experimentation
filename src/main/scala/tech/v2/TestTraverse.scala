@@ -30,9 +30,10 @@ object TestTraverse {
       def traverse[G[_], A, B](fa: List[A])(f: A => G[B])(implicit G: Applicative[G]): G[List[B]] =
       // probably using foldRight since insertion at list head is O(1)
         foldRight[A, G[List[B]]](fa, G.pure(List.empty)) {
-          (a: A, b: G[List[B]]) => {
-            println(s"a: $a, b: $b")
-            G.map2(f(a), b)(
+          (a: A, gfb: G[List[B]]) => {
+            println(s"a: $a, b: $gfb")
+            val gb: G[B] = f(a)
+            G.map2(gb, gfb)(
               (b1, bs) => {
                 println(s"(b1: $b1) :: (bs: $bs)")
                 b1 :: bs
