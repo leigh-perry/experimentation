@@ -1,14 +1,14 @@
 package tech.v2
 
-import cats._
-import cats.effect.{Async, IO}
+import cats.effect.IO
 import cats.implicits._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object TestParallel {
   def main(args: Array[String]): Unit = {
-    testParallelAsMonad()
+    testIO()
+    //    testParallelAsMonad()
   }
 
   ////
@@ -54,3 +54,34 @@ object TestParallel {
 //  def *> [B]   (fb : F[B]) : F[B]
 //  def <* [B]   (fb : F[B]) : F[C]
 //    IO.shift *>
+
+///**
+//  * Some types that form a Monad, are also capable of forming an Applicative
+//  * that supports parallel composition.
+//  * The Parallel type class allows us to represent this relationship.
+//  */
+//trait Parallel[M[_], F[_]] extends NonEmptyParallel[M, F] {
+//  def applicative: Applicative[F]
+//  def monad: Monad[M]
+//}
+//
+//object X {
+//  implicit def ioParallel(implicit timer: Timer[IO]): Parallel[IO, IO.Par] =
+//    new Parallel[IO, IO.Par] {
+//      final override val applicative: Applicative[IO.Par] = parApplicative(timer)
+//
+//      // ...
+//    }
+//
+//  implicit def parApplicative(implicit timer: Timer[IO]): Applicative[IO.Par] =
+//    new Applicative[IO.Par] {
+//
+//      import IO.Par.{unwrap, apply => par}
+//
+//      final override def pure[A](x: A): IO.Par[A] = par(IO.pure(x))
+//      final override def map2[A, B, Z](fa: IO.Par[A], fb: IO.Par[B])(f: (A, B) => Z): IO.Par[Z] =
+//        par(IOParMap(timer, unwrap(fa), unwrap(fb))(f))
+//
+//      // ...
+//    }
+//}
