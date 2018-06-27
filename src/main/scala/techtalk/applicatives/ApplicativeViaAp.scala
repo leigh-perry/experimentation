@@ -1,4 +1,4 @@
-package tech.v2
+package techtalk.applicatives
 
 object ApplicativeViaAp {
   trait Functor[F[_]] {

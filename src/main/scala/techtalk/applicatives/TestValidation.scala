@@ -1,4 +1,4 @@
-package tech.v2
+package techtalk.applicatives
 
 import scalaz._
 import Scalaz._

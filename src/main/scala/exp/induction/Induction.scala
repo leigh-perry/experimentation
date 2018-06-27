@@ -1,4 +1,4 @@
-package tech.v1
+package exp.induction
 
 object Induction {
 

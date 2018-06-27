@@ -1,4 +1,4 @@
-package tech.v2
+package techtalk.applicatives
 
 import cats.effect.IO
 import cats.implicits._
