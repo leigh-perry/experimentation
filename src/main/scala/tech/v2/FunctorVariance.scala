@@ -1,4 +1,4 @@
-package techtalk.applicatives
+package tech.v2
 
 object FunctorVariance {
 
