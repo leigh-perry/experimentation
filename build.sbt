@@ -24,6 +24,7 @@ scalacOptions ++=
     "-Xexperimental"
   )
 
+addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.7" cross CrossVersion.binary)
 
 libraryDependencies += "com.lihaoyi" %% "fastparse" % "1.0.0"
 libraryDependencies += "com.lihaoyi" %% "pprint" % "0.5.3"
