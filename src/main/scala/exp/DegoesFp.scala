@@ -58,27 +58,29 @@ object DegoesFp {
 
     import scala.io.StdIn.readLine
 
-    private def prompt(s: String): EitherT[F, Error, Unit] = EitherT.liftF(Sync[F].delay(print(s"$s ")))
-    private def read: EitherT[F, Error, String] = EitherT.liftF(Sync[F].delay(readLine()))
+    type Result[T] = EitherT[F, Error, T]
 
-    override def promptName: EitherT[F, Error, Unit] = prompt(s"Enter name:")
-    override def readName: EitherT[F, Error, String] = read
-    override def greet(name: String): EitherT[F, Error, Unit] = prompt(s"Hello $name")
-    override def nextNumber: EitherT[F, Error, Int] =
+    private def prompt(s: String): Result[Unit] = EitherT.liftF(Sync[F].delay(print(s"$s ")))
+    private def read: Result[String] = EitherT.liftF(Sync[F].delay(readLine()))
+
+    override def promptName: Result[Unit] = prompt(s"Enter name:")
+    override def readName: Result[String] = read
+    override def greet(name: String): Result[Unit] = prompt(s"Hello $name")
+    override def nextNumber: Result[Int] =
       EitherT.liftF(Sync[F].delay(scala.util.Random.nextInt(5) + 1))
 
-    override def promptNumber(name: String): EitherT[F, Error, Unit] =
+    override def promptNumber(name: String): Result[Unit] =
       prompt(s"Dear $name, please guess a number from 1 to 5:")
 
-    override def readNumber: EitherT[F, Error, Int] =
+    override def readNumber: Result[Int] =
       read.flatMap(s => EitherT.fromOption(Try(s.toInt).toOption, Error.InvalidNumber(s)))
 
-    override def evaluate(target: Int, guessed: Int): EitherT[F, Error, Boolean] = EitherT.rightT(target == guessed)
-    override def revealResult(name: String, target: Int, r: Boolean): EitherT[F, Error, Unit] =
+    override def evaluate(target: Int, guessed: Int): Result[Boolean] = EitherT.rightT(target == guessed)
+    override def revealResult(name: String, target: Int, r: Boolean): Result[Unit] =
       prompt(if (r) s"You guessed right, $name!" else s"You guessed wrong, $name! The number was: $target")
 
-    override def promptContinue(name: String): EitherT[F, Error, Unit] = prompt("Do you want to continue, " + name + "?")
-    override def readContinue: EitherT[F, Error, Boolean] =
+    override def promptContinue(name: String): Result[Unit] = prompt("Do you want to continue, " + name + "?")
+    override def readContinue: Result[Boolean] =
       read.flatMap {
         case "y" => EitherT.rightT(true)
         case "n" => EitherT.rightT(false)
