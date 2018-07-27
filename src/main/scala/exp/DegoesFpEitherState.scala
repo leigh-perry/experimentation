@@ -3,9 +3,9 @@ package exp
 import cats.data.{EitherT, StateT}
 import cats.effect.{IO, Sync}
 import cats.implicits._
-import cats.{Applicative, Monad}
+import cats.{Applicative, Monad, MonadError}
 
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 // For original imperative version see App0 in https://gist.github.com/jdegoes/1b43f43e2d1e845201de853815ab3cb9
 
@@ -66,16 +66,19 @@ object DegoesFpEitherState {
   }
 
 
-  class ProductionInterpreter[F[_] : Sync] extends Algebra[StateT[EitherT[F, Error, ?], RNG, ?]] {
+  class ProductionInterpreter[F[_]](implicit S: Sync[F], E: MonadError[F, Error]) extends Algebra[StateT[F, RNG, ?]] {
 
     import scala.io.StdIn.readLine
 
-    type Result[T] = StateT[EitherT[F, Error, ?], RNG, T]
+    type Result[T] = StateT[F, RNG, T]
+    private def liftF[T](f: F[T]): Result[T] = StateT.liftF(f)(S) // ambiguous implicits
+    private def result[T](t: T): Result[T] = liftF(S.pure(t))
 
-    private def prompt(s: String): Result[Unit] =
-      StateT.liftF(EitherT.liftF[F, Error, Unit](Sync[F].delay(print(s"$s "))))
-    private def read: Result[String] =
-      StateT.liftF(EitherT.liftF(Sync[F].delay(readLine())))
+    private def writePrompt(s: String): F[Unit] = S.delay(print(s"$s "))
+    private def readInput: F[String] = S.delay(readLine())
+
+    private def prompt(s: String): Result[Unit] = liftF(writePrompt(s))
+    private def read: Result[String] = liftF(readInput)
 
     override def promptName: Result[Unit] = prompt(s"Enter name:")
     override def readName: Result[String] = read
@@ -83,38 +86,43 @@ object DegoesFpEitherState {
     override def nextNumber: Result[Int] =
       StateT(
         (s: RNG) =>
-          EitherT.liftF(
-            Sync[F].delay {
-              val (i: Int, r2: RNG) = s.nextInt
-              (r2, i % 5 + 1)
-            }
-          )
-      )
+          S.delay {
+            val (i: Int, r2: RNG) = s.nextInt
+            (r2, i % 5 + 1)
+          }
+      )(S)
 
     override def promptNumber(name: String): Result[Unit] =
       prompt(s"Dear $name, please guess a number from 1 to 5:")
 
     override def readNumber: Result[Int] =
-      read.flatMap {
-        s =>
-          StateT.liftF(EitherT.fromOption(Try(s.toInt).toOption, Error.InvalidNumber(s)))
-      }
+      liftF(
+        S.flatMap[String, Int](readInput) {
+          s =>
+            Try(s.toInt) match {
+              case Success(e) => S.pure(e)
+              case Failure(_) => E.raiseError(Error.InvalidNumber(s))
+            }
+        }
+      )
 
-    override def evaluate(target: Int, guessed: Int): Result[Boolean] = StateT.liftF(EitherT.rightT(target == guessed))
+    override def evaluate(target: Int, guessed: Int): Result[Boolean] = result(target == guessed)
     override def revealResult(name: String, target: Int, r: Boolean): Result[Unit] =
       prompt(if (r) s"You guessed right, $name!" else s"You guessed wrong, $name! The number was: $target")
 
     override def promptContinue(name: String): Result[Unit] = prompt("Do you want to continue, " + name + "?")
     override def readContinue: Result[Boolean] =
-      read.flatMap {
-        case "y" => StateT.liftF(EitherT.rightT(true))
-        case "n" => StateT.liftF(EitherT.rightT(false))
-        case s @ _ => StateT.liftF(EitherT.leftT(Error.InvalidChoice(s)))
-      }
+      liftF(
+        S.flatMap[String, Boolean](readInput) {
+          case "y" => S.pure(true)
+          case "n" => S.pure(false)
+          case s @ _ => E.raiseError(Error.InvalidChoice(s))
+        }
+      )
   }
 
   private def pureMain(args: Array[String]): IO[Either[Error, (RNG, Boolean)]] =
-    program(new ProductionInterpreter[IO])
+    program(new ProductionInterpreter[EitherT[IO, Error, ?]])
       .run(SimpleRNG(0))
       .value
 

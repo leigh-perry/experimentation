@@ -1,15 +1,12 @@
 package exp
 
-import cats.data.EitherT
-import cats.effect.{IO, Sync}
+import cats.effect.Sync
 import cats.implicits._
 import cats.{Applicative, Monad, MonadError}
 
-import scala.util.{Failure, Success, Try}
-
 // For original imperative version see App0 in https://gist.github.com/jdegoes/1b43f43e2d1e845201de853815ab3cb9
 
-object DegoesFpEither {
+object DegoesFpGist {
 
   trait Algebra[F[_]] {
     def promptName: F[Unit]
@@ -41,7 +38,7 @@ object DegoesFpEither {
       _ <- alg.revealResult(name, target, r)
       _ <- alg.promptContinue(name)
       more <- alg.readContinue
-      _ <- if (more) loop(alg, name) else Applicative[F].pure(())
+      _ <- if (more) loop(alg, name) else Applicative[F].pure(false)
     } yield r
 
   ////
@@ -55,6 +52,7 @@ object DegoesFpEither {
   class ProductionInterpreter[F[_]](implicit S: Sync[F], E: MonadError[F, Error]) extends Algebra[F] {
 
     import scala.io.StdIn.readLine
+    import scala.util.{Failure, Success, Try}
 
     private def prompt(s: String): F[Unit] = S.delay(print(s"$s "))
     private def read: F[String] = S.delay(readLine())
@@ -62,12 +60,8 @@ object DegoesFpEither {
     override def promptName: F[Unit] = prompt(s"Enter name:")
     override def readName: F[String] = read
     override def greet(name: String): F[Unit] = prompt(s"Hello $name")
-    override def nextNumber: F[Int] =
-      S.delay(scala.util.Random.nextInt(5) + 1)
-
-    override def promptNumber(name: String): F[Unit] =
-      prompt(s"Dear $name, please guess a number from 1 to 5:")
-
+    override def nextNumber: F[Int] = S.delay(scala.util.Random.nextInt(5) + 1)
+    override def promptNumber(name: String): F[Unit] = prompt(s"Dear $name, please guess a number from 1 to 5:")
     override def readNumber: F[Int] =
       S.flatMap(read) {
         s =>
@@ -77,10 +71,7 @@ object DegoesFpEither {
           }
       }
 
-    override def evaluate(target: Int, guessed: Int): F[Boolean] =
-    //      S.pure(target == guessed)
-      EvaluationSuite.program(new EvaluationSuite.ProductionInterpreter[F](S), target, guessed)(S)
-
+    override def evaluate(target: Int, guessed: Int): F[Boolean] = S.pure(target == guessed)
     override def revealResult(name: String, target: Int, r: Boolean): F[Unit] =
       prompt(if (r) s"You guessed right, $name!" else s"You guessed wrong, $name! The number was: $target")
 
@@ -95,32 +86,8 @@ object DegoesFpEither {
 
   ////
 
-  object EvaluationSuite {
-
-    import cats.Monad
-
-    trait EvaluateAlgebra[F[_]] {
-      def getTarget(b: Int): F[Int]
-      def getGuess(b: Int): F[Int]
-      def compareThem(target: Int, guess: Int): F[Boolean]
-    }
-
-    def program[F[_]](alg: EvaluateAlgebra[F], target: Int, guess: Int)(implicit M: Monad[F]): F[Boolean] =
-      for {
-        t <- alg.getTarget(target)
-        g <- alg.getGuess(guess)
-        r <- alg.compareThem(t, g)
-      } yield r
-
-    // Production version using IO
-    class ProductionInterpreter[F[_]](/*implicit*/ M: Applicative[F]) extends EvaluateAlgebra[F] {
-      override def getTarget(b: Int): F[Int] = M.pure(b)
-      override def getGuess(b: Int): F[Int] = M.pure(b)
-      override def compareThem(target: Int, guess: Int): F[Boolean] = M.pure(target == guess)
-    }
-  }
-
-  ////
+  import cats.data.EitherT
+  import cats.effect.IO
 
   private def pureMain(args: Array[String]) =
     program(new ProductionInterpreter[EitherT[IO, Error, ?]])
