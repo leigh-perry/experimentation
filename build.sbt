@@ -31,8 +31,8 @@ libraryDependencies += "com.lihaoyi" %% "pprint" % "0.5.3"
 //libraryDependencies += "org.scala-lang" % "scala-reflect" % "2.13.0-M4-pre-20d3c21"
 libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.3.0-M24"
 
-libraryDependencies += "org.typelevel" %% "cats-core" % "1.1.0"
-//libraryDependencies += "org.typelevel" %% "cats-free" % "1.1.0"
+libraryDependencies += "org.typelevel" %% "cats-core" % "1.2.0"
+libraryDependencies += "org.typelevel" %% "cats-free" % "1.2.0"
 libraryDependencies += "org.typelevel" %% "cats-effect" % "1.0.0-RC2-d7181dc"
 
 libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.14.0" /*% "test"*/

@@ -1,4 +1,4 @@
-object Bug {
+object IntelliJBug {
 
   sealed trait Error
 
