@@ -16,6 +16,7 @@ sealed abstract class IOLite[A] {
       case c: IOLite.Compute[A] =>
         new IOLite.Compute[B] {
           type Start = c.Start
+
           // https://issues.scala-lang.org/browse/SI-9931
           val start: () => IOLite[Start] = c.start
           val run: Start => IOLite[B] = (s: c.Start) =>

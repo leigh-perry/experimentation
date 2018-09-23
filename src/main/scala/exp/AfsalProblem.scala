@@ -17,13 +17,23 @@ object AfsalProblem {
   object WriteOutcome {
     final case object Replaced extends WriteOutcome
     final case object New extends WriteOutcome
-    final case object Failed extends WriteOutcome
     final case object Wrote extends WriteOutcome
   }
 
-  // TODO: The Result also has FaiureFallBackOperations or IfSuccess encoded in as well. This may or may not be
-  // used by the clients using DbOperation.
-  final case class Result[V](value: V, wr: WriteOutcome)
+  trait FailureAction // TODO
+  trait SuccessAction // TODO
+
+  case class LogAction(errorMessage: String) extends FailureAction
+  case class EtcAction(errorMessage: String) extends FailureAction
+
+  // similarly for success
+
+  final case class Result[V](
+    value: V,
+    wr: WriteOutcome,
+    failureFallBackOperations: Option[FailureAction],
+    ifSuccess: Option[SuccessAction]
+  )
   final case class Page[K, V](values: List[V], nextKey: K)
 
   trait DbOperation[K, V] {
