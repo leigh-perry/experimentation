@@ -1,10 +1,10 @@
 package tech.v2
 
-import cats._
-import cats.effect.{Async, IO}
-import cats.implicits._
-
-import scala.concurrent.ExecutionContext.Implicits.global
+import cats.NonEmptyParallel
+import cats.effect.{ContextShift, IO, Timer}
+import cats.instances.string._
+import cats.syntax.parallel._
+import cats.syntax.semigroup._
 
 object TestParallel {
   def main(args: Array[String]): Unit = {
@@ -26,6 +26,10 @@ object TestParallel {
       i
     }
   }
+
+  import scala.concurrent.ExecutionContext
+
+  implicit val contextShifter: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
 
   def program(store: KVStore) =
     for {
