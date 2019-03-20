@@ -1,15 +1,19 @@
-package exp
+package jdg
 
 import cats.data.EitherT
+import cats.syntax.functor._
+import cats.syntax.flatMap._
 import cats.effect.{IO, Sync}
-import cats.implicits._
 import cats.{Applicative, Monad, MonadError}
 
 import scala.util.{Failure, Success, Try}
 
-// For original imperative version see App0 in https://gist.github.com/jdegoes/1b43f43e2d1e845201de853815ab3cb9
+object DegoesFpEitherConsole {
 
-object DegoesFpEither {
+  trait Console[F[_]] {
+    def write(s: String): F[Unit]
+    def read: F[String]
+  }
 
   trait Algebra[F[_]] {
     def promptName: F[Unit]
@@ -17,11 +21,11 @@ object DegoesFpEither {
     def greet(name: String): F[Unit]
     def nextNumber: F[Int]
     def promptNumber(name: String): F[Unit]
-    def readNumber: F[Int]
+    def readNumber: F[Int] // can error
     def evaluate(target: Int, guessed: Int): F[Boolean]
     def revealResult(name: String, guessed: Int, r: Boolean): F[Unit]
     def promptContinue(name: String): F[Unit]
-    def readContinue: F[Boolean]
+    def readContinue: F[Boolean] // can error
   }
 
   def program[F[_] : Monad](alg: Algebra[F]): F[Boolean] =
@@ -52,12 +56,19 @@ object DegoesFpEither {
     final case class InvalidChoice(s: String) extends Error
   }
 
-  class ProductionInterpreter[F[_]](implicit S: Sync[F], E: MonadError[F, Error]) extends Algebra[F] {
+  class ConsoleInterpreter[F[_]](implicit S: Sync[F]) extends Console[F] {
 
     import scala.io.StdIn.readLine
 
-    private def prompt(s: String): F[Unit] = S.delay(print(s"$s "))
-    private def read: F[String] = S.delay(readLine())
+    override def write(s: String): F[Unit] = S.delay(print(s))
+    override def read: F[String] = S.delay(readLine())
+  }
+
+  class ProductionInterpreter[F[_]](console: Console[F])(implicit S: Sync[F], E: MonadError[F, Error])
+    extends Algebra[F] {
+
+    private def prompt(s: String): F[Unit] = console.write(s"$s ")
+    private def read: F[String] = console.read
 
     override def promptName: F[Unit] = prompt(s"Enter name:")
     override def readName: F[String] = read
@@ -123,7 +134,7 @@ object DegoesFpEither {
   ////
 
   private def pureMain(args: Array[String]) =
-    program(new ProductionInterpreter[EitherT[IO, Error, ?]])
+    program(new ProductionInterpreter[EitherT[IO, Error, ?]](new ConsoleInterpreter[EitherT[IO, Error, ?]]))
       .value
 
   def main(args: Array[String]): Unit = println(pureMain(args).unsafeRunSync())

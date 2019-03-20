@@ -25,6 +25,6 @@ sealed abstract class Coyoneda[F[_], A] {
   val k: I => A
 }
 
-object X {
+object XXXX {
   type FreeC[S[_], A] = Free[Coyoneda[S, ?], A]
 }

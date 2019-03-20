@@ -1,4 +1,4 @@
-package exp
+package jdg
 
 import cats.data.EitherT
 import cats.effect.{IO, Sync}
@@ -6,8 +6,6 @@ import cats.free.Free
 import cats.{MonadError, ~>}
 
 import scala.util.{Failure, Success, Try}
-
-// For original imperative version see App0 in https://gist.github.com/jdegoes/1b43f43e2d1e845201de853815ab3cb9
 
 object DegoesFpEitherFree {
 
