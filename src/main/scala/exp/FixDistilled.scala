@@ -112,12 +112,10 @@ object FixDistilledVerbose {
     }
   }
 
-  def fib(step: Int => Int): Int => Int =
-    n =>
-      n match {
-        case 0 | 1 => 1
-        case n => step(n - 1) + step(n - 2)
-      }
+  def fib(step: Int => Int): Int => Int = {
+    case 0 | 1 => 1
+    case n => step(n - 1) + step(n - 2)
+  }
 
   def main(args: Array[String]): Unit = {
     // fix(factorial) puts a wrapper around factorial via new Function1[] { f(this)(t) }
