@@ -1,8 +1,10 @@
 package combinators
 
-import cats.{Functor, Show}
+import cats.Functor
 import cats.instances.list._
+import cats.instances.option._
 import cats.syntax.functor._
+import cats.syntax.option._
 import testsupport.TestSupport
 
 object FunctorExp
@@ -25,32 +27,45 @@ object FunctorExp
     //      override def composeContravariant[G[_]: Contravariant]: Contravariant[λ[α => F[G[α]]]] =
 
     trait Unshow[A] {
-      def read(s: String): A
+      def unshow(s: String): A
     }
 
     object Unshow {
       def apply[A](implicit F: Unshow[A]): Unshow[A] = F
     }
 
-    implicit def readIntImpl: Unshow[String] =
-      new Unshow[String] {
-        override def read(s: String): String =
-          s
-      }
-
-    implicit def functorUnshow =
+    implicit val functorUnshow: Functor[Unshow] =
       new Functor[Unshow] {
         override def map[A, B](fa: Unshow[A])(f: A => B): Unshow[B] =
           new Unshow[B] {
-            override def read(s: String): B =
-              f(fa.read(s))
+            override def unshow(s: String): B =
+              f(fa.unshow(s))
           }
       }
 
-    val readInt: Unshow[Int] = Unshow[String].map(_.toInt)
+    implicit val unshowStringImpl: Unshow[String] =
+      new Unshow[String] {
+        override def unshow(s: String): String =
+          s
+      }
 
-    readInt.read("1234")
+    val unshowInt: Unshow[Int] = Unshow[String].map(_.toInt)
+
+    unshowInt.unshow("1234")
       .shouldBe(1234)
+
+    ////
+
+    implicit def functorFunction1[A]: Functor[A => ?] =
+      new Functor[A => ?] {
+        override def map[B, C](fa: A => B)(f: B => C): A => C =
+          f.compose(fa)
+      }
+
+    val fab: String => Int = _.toInt
+    val fac: String => Double = fab.map(i => 1.1 * i.toDouble)
+    fac("1234")
+      .shouldBe(1234.0 * 1.1)
 
     ////
 
@@ -74,6 +89,15 @@ object FunctorExp
       .fmap(i => s"v:$i")
       .void
       .shouldBe(List((), (), ()))
+
+    ////
+
+    implicit def functorListOption: Functor[Lambda [X => List[Option[X]]]] =
+      Functor[List].compose[Option]
+
+    val lo: List[Option[Int]] = List(1.some, None, 3.some)
+    functorListOption.map(lo)((i: Int) => i + 1)
+      .shouldBe(List(2.some, None, 4.some))
 
     ()
   }
