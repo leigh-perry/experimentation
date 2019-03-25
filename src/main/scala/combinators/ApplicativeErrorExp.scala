@@ -68,12 +68,17 @@ object ApplicativeErrorExp
 
     AnError.raiseError[IO, Int]
       .onError {
-        case AnError => IO.delay(println("onError"))
+        case AnError => IO.delay(println("(output on error)"))
       }
       .attempt
       .unsafeRunSync()
       .shouldBe(AnError.asLeft)
 
+    ApplicativeError[IO, Throwable]
+      .catchNonFatal[Int](throw AnError)
+      .handleError(_ => 1234)
+      .unsafeRunSync()
+      .shouldBe(1234)
     ApplicativeError[IO, Throwable]
       .catchNonFatal[Int](throw AnError)
       .attempt
