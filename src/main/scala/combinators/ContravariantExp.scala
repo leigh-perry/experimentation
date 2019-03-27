@@ -3,7 +3,7 @@ package combinators
 import cats.Show
 import cats.instances.string._
 import cats.syntax.contravariant._
-import testsupport.TestSupport
+import support.TestSupport
 
 object ContravariantExp
   extends TestSupport {

@@ -4,7 +4,7 @@ import cats.UnorderedFoldable
 import cats.instances.int._
 import cats.instances.list._
 import cats.syntax.unorderedFoldable._
-import testsupport.TestSupport
+import support.TestSupport
 
 object UnorderedFoldableExp
   extends TestSupport {

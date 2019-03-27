@@ -4,7 +4,7 @@ import cats.ApplicativeError
 import cats.effect.IO
 import cats.syntax.applicativeError._
 import cats.syntax.either._
-import testsupport.TestSupport
+import support.TestSupport
 
 object ApplicativeErrorExp
   extends TestSupport {

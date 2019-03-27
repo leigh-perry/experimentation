@@ -3,7 +3,7 @@ package combinators
 import cats.effect.IO
 import cats.instances.vector._
 import cats.syntax.monad._
-import testsupport.TestSupport
+import support.TestSupport
 
 object MonadExp
   extends TestSupport {

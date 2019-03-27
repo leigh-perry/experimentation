@@ -1,6 +1,6 @@
 package combinators
 
-import testsupport.TestSupport
+import support.TestSupport
 
 object ReducibleExp
   extends TestSupport {

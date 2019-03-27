@@ -4,7 +4,7 @@ import cats.effect.IO
 import cats.syntax.applicativeError._
 import cats.syntax.either._
 import cats.syntax.monadError._
-import testsupport.TestSupport
+import support.TestSupport
 
 object MonadErrorExp
   extends TestSupport {

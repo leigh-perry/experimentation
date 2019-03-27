@@ -5,7 +5,7 @@ import cats.instances.option._
 import cats.syntax.apply._
 import cats.syntax.functor._
 import cats.syntax.option._
-import testsupport.TestSupport
+import support.TestSupport
 
 object ApplyExp
   extends TestSupport {

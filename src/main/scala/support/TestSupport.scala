@@ -1,4 +1,4 @@
-package testsupport
+package support
 
 import cats.Eq
 import cats.syntax.eq._

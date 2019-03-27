@@ -5,7 +5,7 @@ import cats.effect.IO
 import cats.instances.option._
 import cats.syntax.flatMap._
 import cats.syntax.option._
-import testsupport.TestSupport
+import support.TestSupport
 
 object FlatMapExp
   extends TestSupport {

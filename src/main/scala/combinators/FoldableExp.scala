@@ -12,7 +12,7 @@ import cats.instances.tuple._
 import cats.syntax.either._
 import cats.syntax.foldable._
 import cats.syntax.option._
-import testsupport.TestSupport
+import support.TestSupport
 
 object FoldableExp
   extends TestSupport {

@@ -2,7 +2,7 @@ package combinators
 
 import cats.Invariant
 import cats.syntax.invariant._
-import testsupport.TestSupport
+import support.TestSupport
 
 object InvariantExp
   extends TestSupport {

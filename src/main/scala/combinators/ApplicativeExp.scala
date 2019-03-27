@@ -7,7 +7,7 @@ import cats.instances.list._
 import cats.instances.option._
 import cats.syntax.applicative._
 import cats.syntax.option._
-import testsupport.TestSupport
+import support.TestSupport
 
 object ApplicativeExp
   extends TestSupport {

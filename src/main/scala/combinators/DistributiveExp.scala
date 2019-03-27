@@ -1,6 +1,6 @@
 package combinators
 
-import testsupport.TestSupport
+import support.TestSupport
 
 object DistributiveExp
   extends TestSupport {
@@ -16,7 +16,6 @@ object DistributiveExp
     // TODO    MonoidK
     // TODO    Alternative
 
-    // TODO    Foldable
     // TODO    Traverse
     // TODO    Reducible
 
