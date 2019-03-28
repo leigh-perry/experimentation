@@ -29,42 +29,42 @@ object ApplicativeErrorExp
     AnError.raiseError[IO, Int]
       .handleErrorWith((_: Throwable) => IO(1234))
       .unsafeRunSync()
-      .shouldBe(1234)
+      .assertIs(1234)
 
     AnError.raiseError[IO, Int]
       .handleError(_ => 1234)
       .unsafeRunSync()
-      .shouldBe(1234)
+      .assertIs(1234)
 
     AnError.raiseError[IO, Int]
       .handleError(_ => 1234)
       .unsafeRunSync()
-      .shouldBe(1234)
+      .assertIs(1234)
 
     AnError.raiseError[IO, Int]
       .attempt
       .unsafeRunSync()
-      .shouldBe(AnError.asLeft)
+      .assertIs(AnError.asLeft)
 
     AnError.raiseError[IO, Int]
       .attemptT // EitherT
       .value
       .unsafeRunSync()
-      .shouldBe(AnError.asLeft)
+      .assertIs(AnError.asLeft)
 
     AnError.raiseError[IO, Int]
       .recover {
         case AnError => 1234
       }
       .unsafeRunSync()
-      .shouldBe(1234)
+      .assertIs(1234)
 
     AnError.raiseError[IO, Int]
       .recoverWith {
         case AnError => IO(1234)
       }
       .unsafeRunSync()
-      .shouldBe(1234)
+      .assertIs(1234)
 
     AnError.raiseError[IO, Int]
       .onError {
@@ -72,29 +72,29 @@ object ApplicativeErrorExp
       }
       .attempt
       .unsafeRunSync()
-      .shouldBe(AnError.asLeft)
+      .assertIs(AnError.asLeft)
 
     ApplicativeError[IO, Throwable]
       .catchNonFatal[Int](throw AnError)
       .handleError(_ => 1234)
       .unsafeRunSync()
-      .shouldBe(1234)
+      .assertIs(1234)
     ApplicativeError[IO, Throwable]
       .catchNonFatal[Int](throw AnError)
       .attempt
       .unsafeRunSync()
-      .shouldBe(AnError.asLeft)
+      .assertIs(AnError.asLeft)
 
     ApplicativeError[IO, Throwable]
       .fromEither[Int](1234.asRight)
       .attempt
       .unsafeRunSync()
-      .shouldBe(1234.asRight)
+      .assertIs(1234.asRight)
     ApplicativeError[IO, Throwable]
       .fromEither[Int](AnError.asLeft)
       .attempt
       .unsafeRunSync()
-      .shouldBe(AnError.asLeft)
+      .assertIs(AnError.asLeft)
 
     ()
   }

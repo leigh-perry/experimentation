@@ -52,7 +52,7 @@ object FunctorExp
     val unshowInt: Unshow[Int] = Unshow[String].map(_.toInt)
 
     unshowInt.unshow("1234")
-      .shouldBe(1234)
+      .assertIs(1234)
 
     ////
 
@@ -65,30 +65,30 @@ object FunctorExp
     val fab: String => Int = _.toInt
     val fac: String => Double = fab.map(i => 1.1 * i.toDouble)
     fac("1234")
-      .shouldBe(1234.0 * 1.1)
+      .assertIs(1234.0 * 1.1)
 
     ////
 
     val list = List(1, 2, 3)
     list
       .as(1)
-      .shouldBe(List(1, 1, 1))
+      .assertIs(List(1, 1, 1))
 
     list
       .fmap(i => s"v:$i")
       .tupleLeft("X")
       .tupleRight("Y")
-      .shouldBe(List((("X", "v:1"), "Y"), (("X", "v:2"), "Y"), (("X", "v:3"), "Y")))
+      .assertIs(List((("X", "v:1"), "Y"), (("X", "v:2"), "Y"), (("X", "v:3"), "Y")))
 
     list
       .fmap(i => s"v:$i")
       .fproduct(_.toUpperCase)
-      .shouldBe(List(("v:1", "V:1"), ("v:2", "V:2"), ("v:3", "V:3")))
+      .assertIs(List(("v:1", "V:1"), ("v:2", "V:2"), ("v:3", "V:3")))
 
     list
       .fmap(i => s"v:$i")
       .void
-      .shouldBe(List((), (), ()))
+      .assertIs(List((), (), ()))
 
     ////
 
@@ -97,7 +97,7 @@ object FunctorExp
 
     val lo: List[Option[Int]] = List(1.some, None, 3.some)
     functorListOption.map(lo)((i: Int) => i + 1)
-      .shouldBe(List(2.some, None, 4.some))
+      .assertIs(List(2.some, None, 4.some))
 
     ()
   }

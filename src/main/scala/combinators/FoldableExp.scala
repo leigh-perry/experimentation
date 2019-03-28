@@ -1,21 +1,22 @@
 package combinators
 
-import cats.{Eval, Foldable}
 import cats.data.Const
 import cats.effect.IO
-import cats.instances.either._
 import cats.instances.int._
 import cats.instances.list._
 import cats.instances.option._
 import cats.instances.string._
 import cats.instances.tuple._
+import cats.instances.either._
 import cats.syntax.either._
 import cats.syntax.foldable._
 import cats.syntax.option._
-import support.TestSupport
+import cats.{Eval, Foldable}
+import support.{OptionalSupport, TestSupport}
 
 object FoldableExp
-  extends TestSupport {
+  extends TestSupport
+    with OptionalSupport {
   def main(args: Array[String]): Unit = {
 
     //    def sequence_(implicit F: Foldable[F], G: Applicative[G]): G[Unit]
@@ -68,115 +69,122 @@ object FoldableExp
     //    def intercalate[A](fa: F[A], a: A)(implicit A: Monoid[A]): A
     //    def compose[G[_]: Foldable]: Foldable[λ[α => F[G[α]]]]
 
+    List(1, 2, 3)
+      .traverse_(_.some)
+      .assertIs(().some)
+    List(1, 2, 3)
+      .traverse_(i => (i != 2).option(i))
+      .assertIs(None)
+
     List(1.some, 2.some, 3.some)
       .sequence_
-      .shouldBe(().some)
+      .assertIs(().some)
     List(1.some, None, 3.some)
       .sequence_
-      .shouldBe(None)
+      .assertIs(None)
 
     // TODO foldK
 
     List(1, 2, 3)
       .foldl(0)(_ + _)
-      .shouldBe(6)
+      .assertIs(6)
 
     List(1, 2, 3)
       .foldr(Eval.now(0))((total, evalB) => evalB.map(_ + total))
       .value
-      .shouldBe(6)
+      .assertIs(6)
 
     List(1, 2, 3)
       .contains_(2)
-      .shouldBe(true)
+      .assertIs(true)
 
     List(1, 2, 3)
       .foldSmash(10, 2, 20)
-      .shouldBe(40)
+      .assertIs(40)
     List("1", "2", "3")
       .foldSmash("(", "&", ")")
-      .shouldBe("(1&2&3)")
+      .assertIs("(1&2&3)")
 
     List(1, 2, 3)
       .mkString_("(", "&", ")")
-      .shouldBe("(1&2&3)")
+      .assertIs("(1&2&3)")
     List(1, 2, 3)
       .mkString_("&")
-      .shouldBe("1&2&3")
+      .assertIs("1&2&3")
 
     def parseInt(s: String): Either[String, Int] =
       Either.catchOnly[NumberFormatException](s.toInt).leftMap(_.getMessage)
 
     val keys1 = List("1", "2", "4", "5")
     val map1 = Map(4 -> "Four", 5 -> "Five")
-    keys1.collectFirstSomeM(parseInt(_).map(map1.get))
-      .shouldBe(Some("Four").asRight)
+    keys1.collectFirstSomeM[Either[String, ?], String](parseInt(_).map(map1.get))
+      .assertIs(Some("Four").asRight)
 
     val map2 = Map(6 -> "Six", 7 -> "Seven")
-    keys1.collectFirstSomeM(parseInt(_).map(map2.get))
-      .shouldBe(None.asRight)
+    keys1.collectFirstSomeM[Either[String, ?], String](parseInt(_).map(map2.get))
+      .assertIs(None.asRight)
 
     val keys2 = List("1", "x", "4", "5")
-    keys2.collectFirstSomeM(parseInt(_).map(map1.get))
-      .shouldBe("For input string: \"x\"".asLeft)
+    keys2.collectFirstSomeM[Either[String, ?], String](parseInt(_).map(map1.get))
+      .assertIs("For input string: \"x\"".asLeft)
 
     val keys3 = List("1", "2", "4", "x")
-    keys3.collectFirstSomeM(parseInt(_).map(map1.get))
-      .shouldBe(Some("Four").asRight)
+    keys3.collectFirstSomeM[Either[String, ?], String](parseInt(_).map(map1.get))
+      .assertIs(Some("Four").asRight)
 
     List(1, 2, 3)
       .findM(i => IO(i == 2))
       .unsafeRunSync()
-      .shouldBe(2.some)
+      .assertIs(2.some)
 
     List(1, 2, 3)
       .collectFold {
         case n if n > 1 => n
       }
-      .shouldBe(5)
+      .assertIs(5)
 
     List(1, 2, 3)
       .collectSomeFold(i => if (i > 1) i.some else None)
-      .shouldBe(5)
+      .assertIs(5)
 
     // TODO   def foldMapK[G[_], B](f: A => G[B])(implicit F: Foldable[F], G: MonoidK[G]): G[B]
 
     List(1, 2, 3)
       .partitionBifold[Tuple2, Int, String](a => (a, s"value$a"))
-      .shouldBe((List(1, 2, 3), List("value1", "value2", "value3")))
+      .assertIs((List(1, 2, 3), List("value1", "value2", "value3")))
     List(1, 2, 3)
       .partitionBifold(a => Const[Int, Nothing](a))
-      .shouldBe((List(1, 2, 3), List()))
+      .assertIs((List(1, 2, 3), List()))
 
     List(1, 2, 3)
       .partitionBifoldM(a => IO((a, s"value$a")))
       .unsafeRunSync()
-      .shouldBe((List(1, 2, 3), List("value1", "value2", "value3")))
+      .assertIs((List(1, 2, 3), List("value1", "value2", "value3")))
 
     List(1, 2, 3)
       .partitionEitherM[IO, Int, String](a => IO(a.asLeft))
       .unsafeRunSync()
-      .shouldBe((List(1, 2, 3), List()))
+      .assertIs((List(1, 2, 3), List()))
     List(1, 2, 3)
       .partitionEitherM[IO, Int, String](a => IO(s"value$a".asRight))
       .unsafeRunSync()
-      .shouldBe((List(), List("value1", "value2", "value3")))
+      .assertIs((List(), List("value1", "value2", "value3")))
 
     ////
 
     Foldable[List]
       .foldMap(List(1, 2, 3))(_ * 10)
-      .shouldBe(60)
+      .assertIs(60)
 
     Foldable[List]
       .foldM(List(1, 2, 3), 0)((b, a) => IO(b + a))
       .unsafeRunSync()
-      .shouldBe(6)
+      .assertIs(6)
 
     Foldable[List]
       .foldMapM(List(1, 2, 3))(i => IO(i * 10))
       .unsafeRunSync()
-      .shouldBe(60)
+      .assertIs(60)
 
     ()
   }

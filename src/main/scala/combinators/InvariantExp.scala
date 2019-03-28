@@ -39,9 +39,9 @@ object InvariantExp
     val codecInt: Codec[Int] = Codec[String].imap(_.toInt)(_.toString)
 
     codecInt.decode("1234")
-      .shouldBe(1234)
+      .assertIs(1234)
     codecInt.encode(1234)
-      .shouldBe("1234")
+      .assertIs("1234")
 
     ()
   }

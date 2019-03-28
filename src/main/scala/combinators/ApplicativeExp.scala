@@ -21,52 +21,52 @@ object ApplicativeExp
     //    def whenA[A](cond: Boolean)(f: => F[A]): F[Unit]
 
     1.pure[Option]
-      .shouldBe(1.some)
+      .assertIs(1.some)
 
     1.pure[Option].replicateA(3)
-      .shouldBe(Some(List(1, 1, 1)))
+      .assertIs(Some(List(1, 1, 1)))
 
     Applicative[Option]
       .compose[List]
       .pure(1)
-      .shouldBe(Some(List(1)))
+      .assertIs(Some(List(1)))
 
     List(1, 2, 3)
       .unlessA(false)
-      .shouldBe(List((), (), ()))
+      .assertIs(List((), (), ()))
     List(1, 2, 3)
       .unlessA(true)
-      .shouldBe(List(()))
+      .assertIs(List(()))
 
     List(1, 2, 3)
       .whenA(false)
-      .shouldBe(List(()))
+      .assertIs(List(()))
     List(1, 2, 3)
       .whenA(true)
-      .shouldBe(List((), (), ()))
+      .assertIs(List((), (), ()))
 
     val inc: Int => (Int, Int) = i => (i, i + 1)
     Ref[IO].of(1)
       .flatMap(_.modify(inc))
       .unlessA(false)
       .unsafeRunSync()
-      .shouldBe(1)
+      .assertIs(1)
     Ref[IO].of(1)
       .flatMap(_.modify(inc))
       .unlessA(true)
       .unsafeRunSync()
-      .shouldBe(2)
+      .assertIs(2)
 
     Ref[IO].of(1)
       .flatMap(_.modify(inc))
       .whenA(false)
       .unsafeRunSync()
-      .shouldBe(2)
+      .assertIs(2)
     Ref[IO].of(1)
       .flatMap(_.modify(inc))
       .whenA(true)
       .unsafeRunSync()
-      .shouldBe(1)
+      .assertIs(1)
 
     ()
   }

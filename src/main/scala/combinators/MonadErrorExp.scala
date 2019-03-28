@@ -23,27 +23,27 @@ object MonadErrorExp
     IO(1234)
       .ensure(AnError)(_ == 1234)
       .unsafeRunSync()
-      .shouldBe(1234)
+      .assertIs(1234)
     IO(123)
       .ensure(AnError)(_ == 1234)
       .attempt
       .unsafeRunSync()
-      .shouldBe(AnError.asLeft)
+      .assertIs(AnError.asLeft)
 
     IO(1234)
       .ensureOr(i => if (i == 123) AnError else AnotherError)(_ == 1234)
       .unsafeRunSync()
-      .shouldBe(1234)
+      .assertIs(1234)
     IO(123)
       .ensureOr(i => if (i == 123) AnError else AnotherError)(_ == 1234)
       .attempt
       .unsafeRunSync()
-      .shouldBe(AnError.asLeft)
+      .assertIs(AnError.asLeft)
     IO(0)
       .ensureOr(i => if (i == 123) AnError else AnotherError)(_ == 1234)
       .attempt
       .unsafeRunSync()
-      .shouldBe(AnotherError.asLeft)
+      .assertIs(AnotherError.asLeft)
 
     AnError.raiseError[IO, Int]
       .adaptError {
@@ -52,7 +52,7 @@ object MonadErrorExp
       }
       .attempt
       .unsafeRunSync()
-      .shouldBe(AnotherError.asLeft)
+      .assertIs(AnotherError.asLeft)
     AnotherError.raiseError[IO, Int]
       .adaptError {
         case AnError => AnotherError
@@ -60,14 +60,14 @@ object MonadErrorExp
       }
       .attempt
       .unsafeRunSync()
-      .shouldBe(YetAnotherError.asLeft)
+      .assertIs(YetAnotherError.asLeft)
 
     AnotherError.raiseError[IO, Int]
       .attempt
       .rethrow
       .attempt
       .unsafeRunSync()
-      .shouldBe(AnotherError.asLeft)
+      .assertIs(AnotherError.asLeft)
 
     ()
   }

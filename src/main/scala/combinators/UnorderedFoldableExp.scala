@@ -23,26 +23,26 @@ object UnorderedFoldableExp
 
     List(1, 2, 3)
       .unorderedFoldMap(_ * 10)
-      .shouldBe(60)
+      .assertIs(60)
 
     List(1, 2, 3)
       .unorderedFold
-      .shouldBe(6)
+      .assertIs(6)
 
     uf.isEmpty(List())
-      .shouldBe(true)
+      .assertIs(true)
 
     uf.nonEmpty(List(1))
-      .shouldBe(true)
+      .assertIs(true)
 
     uf.exists(List(1, 2, 3))(_ == 2)
-      .shouldBe(true)
+      .assertIs(true)
 
     uf.forall(List(1, 2, 3))(_ > 0)
-      .shouldBe(true)
+      .assertIs(true)
 
     uf.size(List(1, 2, 3))
-      .shouldBe(3)
+      .assertIs(3)
 
     ()
   }

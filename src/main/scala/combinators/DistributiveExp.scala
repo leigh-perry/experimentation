@@ -16,9 +16,6 @@ object DistributiveExp
     // TODO    MonoidK
     // TODO    Alternative
 
-    // TODO    Traverse
-    // TODO    Reducible
-
     // TODO    Compose
     // TODO    Category
     // TODO    Choice

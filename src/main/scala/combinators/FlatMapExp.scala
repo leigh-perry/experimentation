@@ -19,24 +19,24 @@ object FlatMapExp
 
     1.some
       .mproduct(i => if (i % 2 == 0) (i * 10).some else None)
-      .shouldBe(None)
+      .assertIs(None)
     2.some
       .mproduct(i => if (i % 2 == 0) (i * 10).some else None)
-      .shouldBe((2, 20).some)
+      .assertIs((2, 20).some)
 
     FlatMap[Option]
       .ifM(true.some)(3.some, 4.some)
-      .shouldBe(3.some)
+      .assertIs(3.some)
     FlatMap[Option]
       .ifM(false.some)(3.some, 4.some)
-      .shouldBe(4.some)
+      .assertIs(4.some)
 
     1.some
       .flatTap(i => (i * 10).some)
-      .shouldBe(1.some)
+      .assertIs(1.some)
     Option.empty[Int]
       .flatTap(i => (i * 10).some)
-      .shouldBe(Option.empty[Int])
+      .assertIs(Option.empty[Int])
 
     ////
 
@@ -55,7 +55,7 @@ object FlatMapExp
 
     readInts
       .unsafeRunSync()
-      .shouldBe(SomeInts(List(0, 1, 2, 3)))
+      .assertIs(SomeInts(List(0, 1, 2, 3)))
 
     ()
   }

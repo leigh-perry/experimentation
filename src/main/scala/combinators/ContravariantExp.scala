@@ -12,7 +12,7 @@ object ContravariantExp
     val showInt: Show[Int] = Show[String].contramap(_.toString)
 
     showInt.show(1234)
-      .shouldBe("1234")
+      .assertIs("1234")
 
     ()
   }

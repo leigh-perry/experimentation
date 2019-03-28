@@ -30,7 +30,7 @@ object MonadExp
       IO.delay(print("do work "))
         .whileM_(IO(System.currentTimeMillis < start + 20))
         .unsafeRunSync()
-        .shouldBe(())
+        .assertIs(())
     }
 
     // ditto untilM, untilM_
@@ -57,7 +57,7 @@ object MonadExp
 
     readInts
       .unsafeRunSync()
-      .shouldBe(SomeInts(List(0, 1, 2, 3)))
+      .assertIs(SomeInts(List(0, 1, 2, 3)))
 
     ()
   }

@@ -23,40 +23,40 @@ object ApplyExp
     val f: Int => Int => Int = a => b => a + b
 
     (1.some *> 2.some)
-      .shouldBe(Some(2))
+      .assertIs(Some(2))
 
     (1.some.productR(2.some))
-      .shouldBe(Some(2))
+      .assertIs(Some(2))
 
     (1.some <* 2.some)
-      .shouldBe(Some(1))
+      .assertIs(Some(1))
 
     (1.some.productL(2.some))
-      .shouldBe(Some(1))
+      .assertIs(Some(1))
 
     (None *> 2.some)
-      .shouldBe(None)
+      .assertIs(None)
 
     (1.some <* None)
-      .shouldBe(None)
+      .assertIs(None)
 
     (Apply[Option].map2(1.some, 2.some)(_ + _))
-      .shouldBe(Some(3))
+      .assertIs(Some(3))
 
     ((1.some, 2.some).mapN(_ + _))
-      .shouldBe(Some(3))
+      .assertIs(Some(3))
 
     ((1.some, 2.some, 3.some).mapN(_ + _ + _))
-      .shouldBe(Some(6))
+      .assertIs(Some(6))
 
     (11.some.fmap(f).ap(12.some))
-      .shouldBe(Some(23))
+      .assertIs(Some(23))
 
     (11.some.fmap(f) <*> 12.some)
-      .shouldBe(Some(23))
+      .assertIs(Some(23))
 
     (11.some.fmap(f) <*> None)
-      .shouldBe(None)
+      .assertIs(None)
 
     ()
   }
