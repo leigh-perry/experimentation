@@ -1,154 +1,63 @@
-package exp
-
-import java.util.concurrent.atomic.AtomicInteger
+package tech.fixnthat
 
 import cats.arrow.Compose
 import cats.data.{Nested, NonEmptyList}
 import cats.free.Cofree
+import exp.Rendering
 
-object DirectRecursion {
-  def factorial: Int => Int = {
-    case 1 => 1
-    case n => n * factorial(n - 1)
-  }
+/*
+from workflowy...
 
-  def main(args: Array[String]): Unit =
-    println(factorial(3))
-}
+analysis of fix point
+https://youtu.be/IcDc-nJTlwI?t=725
+haskell
+Prelude> rec f = f (rec f)
+Prelude> :t rec
+rec :: (t -> t) -> t
 
-////
+Prelude> fac f n = if (n < 3) then n else  n * f (n - 1)
+Prelude> :t fac
+fac :: (Ord t, Num t) => (t -> t) -> t -> t
 
-//object DirectRecursionX {
-//  def factorial(step: Int => Int): Int => Int =
-//    n =>
-//      n match {
-//        case 1 => 1
-//        case _ => n * step(n - 1)
-//      }
-//
-//  def main(args: Array[String]): Unit = {
-//    // println(factorial(factorial)(3))
-//    ()
-//  }
-//}
+implements rec f = f (rec f) in scala
+has to fully model A => A to avoid strictness stack overflow
+https://youtu.be/IcDc-nJTlwI?t=950 implements in scala
+then implements in scala as Scope[A]
+get rid of Scope and just use [A] on the rec function
+https://youtu.be/IcDc-nJTlwI?t=1297
+mathematical explanation of fix...  x = f(x)
+then converts to fix data type
+reifies from the haskell definition
+changes logic into data
+f becomes F
+rec becomes Rec
+changes Rec to Fix and a to unfix
+builds List and Tree
+https://youtu.be/IcDc-nJTlwI?t=1877
+says without fix it would be nested types
+show that
 
-////
+https://jto.github.io/articles/typelevel-fix/
+type level fix - HList
+coproduct using Fix
 
-object FixDistilled {
+mu, y combinator
+https://stackoverflow.com/questions/45580858/what-is-the-difference-between-fix-mu-and-nu-in-ed-kmetts-recursion-scheme-pac
+Y combinator & Mu
+http://debasishg.blogspot.com/2011/07/datatype-generic-programming-in-scala.html
+http://debasishg.blogspot.com/2012/01/learning-type-level-fixpoint-combinator.html
+[MAYBE] https://youtu.be/oRLkb6mqvVM?t=3939 Kris Nuttycombe
+case class HFix[F[_[_], _], I](unfix: F[HFix[F, ?], I])
+https://youtu.be/D8LdznWynyw?t=89 Greg Pfeil
+is Cofree a fixpoint operator?
+case class Cofree[F[_], A](head: A, tail: F[Cofree[F, A]])
+replace the recursive part
+case class CofreeF[F[_], A, B](head: A, tail: F[B])
+https://www.youtube.com/watch?v=9T8A89jgeTI Y combinator background
+https://bartoszmilewski.com/2017/02/28/f-algebras/amp/?__twitter_impression=true category theory
+ */
 
-  def factorialExplicit: Int => Int = {
-    case 1 => 1
-    case n => n * factorialExplicit(n - 1)
-  }
-
-  def factorial(step: Int => Int): Int => Int = {
-    case 1 => 1
-    case n => n * step(n - 1)
-  }
-
-  def fix[T, R](f: (T => R) => (T => R)): T => R =
-    new Function[T, R] {
-      override def apply(t: T): R =
-        f(this)(t)
-    }
-
-  def main(args: Array[String]): Unit = {
-    // fix(factorial) puts a wrapper around factorial via new Function1[] { f(this)(t) }
-    // then calls the function, passing the wrapper for the recursion function too
-
-    // there are no direct recursive calls anywhere -- corecursion
-
-    // Y = λf.(λx.f (x x)) (λx.f (x x))
-
-    val wrapped = fix(factorial)
-    println(wrapped(6))
-  }
-}
-
-////
-
-object FixDistilledVerbose {
-  private val spaces = new AtomicInteger(0) // don't @ me
-  private def indent = spaces.addAndGet(2)
-  private def outdent = spaces.addAndGet(-2)
-  private def output(s: String) =
-    println(" " * spaces.get + s)
-
-  def fix[T, R](f: (T => R) => (T => R)): T => R = {
-    output("fix creating wrapper function")
-    new Function[T, R] {
-      override def apply(t: T): R = {
-        indent
-        output(s"in fix wrapper $t")
-        val fBound: T => R = f(this)
-        output(s"invoking stepper with $t")
-
-        indent
-        val r: R = fBound(t)
-        outdent
-
-        output(s"fix wrapper result $r")
-        outdent
-        r
-      }
-    }
-  }
-
-  // factorial adds the business logic (multiplication with predecessor)
-  // step is some undefined way of invoking the next step in the chain
-  // in practice step is the Function1 instance created by fix(factorial)
-  def factorial(step: Int => Int): Int => Int = {
-    output("creating stepper")
-    n => {
-      output(s"stepper ($n)")
-      val r =
-        n match {
-          case 1 => 1
-          case _ => {
-            val next = n - 1
-            output(s"stepping $next")
-            val result = n * step(next)
-            output(s"back from stepping $next")
-            result
-          }
-        }
-      output(s"factorial finished invoke $n => $r")
-      r
-    }
-  }
-
-  def fib(step: Int => Int): Int => Int = {
-    case 0 | 1 => 1
-    case n => step(n - 1) + step(n - 2)
-  }
-
-  def main(args: Array[String]): Unit = {
-    // fix(factorial) puts a wrapper around factorial via new Function1[] { f(this)(t) }
-    // then calls the function, passing the wrapper for the recursion function too
-
-    // NOTE: fix never calls itself - no recursion
-    // NOTE: factorial never calls itself - no recursion
-    // ... there are no recursive calls anywhere
-
-    // https://www.youtube.com/watch?v=9T8A89jgeTI
-    // Y = λf.(λx.f (x x)) (λx.f (x x))
-    // def fix[T, R](f: (T => R) => (T => R)): T => R = {
-    // def fix[T, R]: ((T => R) => (T => R)) => T => R = {
-
-    // NOTE: we never invoke factorial directly, it is called via the thunk
-
-    // NOTE: the wrapper function becomes a thunk for taking the 'callback'
-    // and passing it down into factorial() again ... couldn't do that directly
-
-    val fixed = fix(factorial)
-    output(s"result ${fixed(3)}")
-
-    //output((0 to 10).map(fix(fib)(_)))
-  }
-
-}
-
-object ToTypes {
+object Fixnthat {
 
   def factorial(f: Int => Int): Int => Int = {
     case 1 => 1

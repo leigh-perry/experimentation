@@ -1,4 +1,4 @@
-package tech.v2
+package tech.apnthat
 
 import scalaz.Scalaz._
 
