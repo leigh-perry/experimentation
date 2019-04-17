@@ -7,14 +7,17 @@ import reftree.diagram.{Animation, Diagram}
 import reftree.render.{Renderer, RenderingOptions}
 
 // http://stanch.github.io/reftree/Guide.html#diagrams
+// brew install graphviz
 
 object Rendering {
+
+  private val path = "/tmp/rendered"
 
   def animate[A: ToRefTree](animation: Animation.Builder[A], filename: String): Unit = {
     val renderer =
       Renderer(
         renderingOptions = RenderingOptions(density = 75),
-        directory = Paths.get("/Users/lperry/temp/rendered")
+        directory = Paths.get(path)
       )
     import renderer._
 
@@ -27,7 +30,7 @@ object Rendering {
     val renderer =
       Renderer(
         renderingOptions = RenderingOptions(density = 75),
-        directory = Paths.get("/Users/lperry/temp/rendered")
+        directory = Paths.get(path)
       )
 
     import renderer._

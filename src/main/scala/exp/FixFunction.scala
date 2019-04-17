@@ -2,10 +2,6 @@ package exp
 
 import java.util.concurrent.atomic.AtomicInteger
 
-import cats.arrow.Compose
-import cats.data.{Nested, NonEmptyList}
-import cats.free.Cofree
-
 object DirectRecursion {
   def factorial: Int => Int = {
     case 1 => 1
