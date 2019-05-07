@@ -19,10 +19,12 @@ object Fix3Compose {
   // final case class Nested[F[_], G[_], A](value: F[G[A]])
 
   def main(args: Array[String]): Unit = {
-    val n: Nested[List, Option, Int] = Nested(List(1.some, 2.some, None))
-    println(n.map(_ * 10))
+    val listOfOptions: Nested[List, Option, Int] = Nested(List(1.some, 2.some, None))
+    println(listOfOptions.map(_ * 10))
 
-    println(Nested(List(1, 2, 3).some).map(_ * 10))
+    val optionalList = Nested(List(1, 2, 3).some)
+    println(optionalList.map(_ * 10))
+
     println(Nested(List(Option.empty[Int])).map(_ * 10))
   }
 

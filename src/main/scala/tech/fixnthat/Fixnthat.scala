@@ -321,7 +321,7 @@ object Fixnthat {
 
   ////
 
-  def nelCons(entry: (Int, Option[Fix[Nested[Tuple2[Int, ?], Option, ?]]])) =
+  def nelCons(entry: (Int, Option[Fix[Nested[(Int, ?), Option, ?]]])) =
     nelFix(nelNested(entry))
 
   def nelNested[A](entry: (A, Option[Fix[Nested[(A, ?), Option, ?]]])) =
@@ -338,7 +338,7 @@ object Fixnthat {
   def listNested[A](opt: Option[(A, Fix[Nested[Option, (A, ?), ?]])]): Nested[Option, (A, ?), Fix[Nested[Option, (A, ?), ?]]] =
     Nested[Option, (A, ?), Fix[Nested[Option, (A, ?), ?]]](opt)
 
-  def listCons[A](opt: Option[(A, Fix[Nested[Option, (A, ?), ?]])]): Fix[Nested[Option, Tuple2[A, ?], ?]] =
+  def listCons[A](opt: Option[(A, Fix[Nested[Option, (A, ?), ?]])]): Fix[Nested[Option, (A, ?), ?]] =
     listTail(listNested(opt))
 
 }

@@ -6,14 +6,14 @@ import tech.fixnthat.Fix2Type.Fix
 
 object Fix4ComposeListNel {
 
-  // Semantic equivalence
+  // script: Semantic equivalence
   type XList[A] = Option[NonEmptyList[A]]
   type XNonEmptyList[A] = (A, List[A])
 
   // https://twitter.com/jaspervdj/status/1113347183208583168
   //  type NonEmpty a = Fix (Compose ((,) a) Maybe)
   //  type List a = Fix (Compose Maybe ((,) a))
-  type CNel[A] = Fix[Nested[(A, ?), Option, ?]] // (A, Option[x])
+  type CNel[A]  = Fix[Nested[(A, ?), Option, ?]] // (A, Option[x])
   type CList[A] = Fix[Nested[Option, (A, ?), ?]] // Option[(A, x)]
 
   // https://gist.github.com/jaspervdj/f43d93bf5abfa2af5e67b04612884199
@@ -63,24 +63,18 @@ object Fix4ComposeListNel {
 
   ////
 
-  def nelCons(entry: (Int, Option[Fix[Nested[Tuple2[Int, ?], Option, ?]]])) =
-    nelFix(nelNested(entry))
-
-  def nelNested[A](entry: (A, Option[Fix[Nested[(A, ?), Option, ?]]])) =
-    Nested[(A, ?), Option, Fix[Nested[(A, ?), Option, ?]]](entry)
+  def nelCons[A](entry: (A, Option[Fix[Nested[(A, ?), Option, ?]]])) =
+    nelFix(Nested[(A, ?), Option, Fix[Nested[(A, ?), Option, ?]]](entry))
 
   def nelFix[A](tail: Nested[(A, ?), Option, Fix[Nested[(A, ?), Option, ?]]]) =
     Fix[Nested[(A, ?), Option, ?]](tail)
 
   ////
 
-  def listTail[A](tail: Nested[Option, (A, ?), Fix[Nested[Option, (A, ?), ?]]]) =
-    Fix[Nested[Option, (A, ?), ?]](tail)
-
-  def listNested[A](opt: Option[(A, Fix[Nested[Option, (A, ?), ?]])]): Nested[Option, (A, ?), Fix[Nested[Option, (A, ?), ?]]] =
-    Nested[Option, (A, ?), Fix[Nested[Option, (A, ?), ?]]](opt)
-
   def listCons[A](opt: Option[(A, Fix[Nested[Option, (A, ?), ?]])]): Fix[Nested[Option, (A, ?), ?]] =
-    listTail(listNested(opt))
+    listFix(Nested[Option, (A, ?), Fix[Nested[Option, (A, ?), ?]]](opt))
+
+  def listFix[A](tail: Nested[Option, (A, ?), Fix[Nested[Option, (A, ?), ?]]]) =
+    Fix[Nested[Option, (A, ?), ?]](tail)
 
 }

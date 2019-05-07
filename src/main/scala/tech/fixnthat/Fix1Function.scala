@@ -17,6 +17,16 @@ object Fix1Function {
   //Prelude> :t fac
   //fac :: (Ord t, Num t) => (t -> t) -> t -> t
 
+  // Prelude> fac fac 6
+  //
+  //<interactive>:6:1: error:
+  //    • Non type-variable argument in the constraint: Ord (t -> t)
+  //      (Use FlexibleContexts to permit this)
+  //    • When checking the inferred type
+  //        it :: forall t.
+  //              (Ord t, Ord (t -> t), Num t, Num (t -> t)) =>
+  //              t -> t
+
   //Prelude> rec g = g (rec g)
   //Prelude> :t rec
   //rec :: (t -> t) -> t
