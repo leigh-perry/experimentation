@@ -2,15 +2,13 @@ package tech.fixnthat
 
 import tech.fixnthat.Fix2Type.{FCons, FList, FNil}
 
-object Fix6FixK {
+object Fix6HFix {
 
-  // https://jto.github.io/articles/typelevel-fix/
-
-  // script: type level Fix
+  // script: type level Fix - eliminate the Fix in F[Fix[F]
   trait HfBase
-  //final case class Fix[F[_]]             (unfix: F[Fix[F]])
-  final case class FixT[F[_], G <: HfBase](unfix: F[G]) extends HfBase
-  trait INil extends HfBase
+  //final case class Fix[F[_]]            (unfix: F[Fix[F]])
+  final case class HFix[F[_], G <: HfBase](unfix: F[G]) extends HfBase
+  trait HfNil extends HfBase
 
   // script:
   // factor out recursion at the type level
@@ -18,13 +16,13 @@ object Fix6FixK {
 
   // script: using previous fixed list (FList) can define HList
 
-  type HNil = FixT[FList[FList[Nothing, Nothing], ?], INil]
-  type ::[X, XS <: HfBase] = FixT[FList[X, ?], XS]
+  type HNil = HFix[FList[Nothing, ?], HfNil]
+  type ::[X, XS <: HfBase] = HFix[FList[X, ?], XS]
 
-  val hnil: HNil = FixT[FList[FList[Nothing, Nothing], ?], INil](FNil)
+  val hnil: HNil = HFix[FList[Nothing, ?], HfNil](FNil)
 
   def hcons[X, XS <: HfBase](x: X, xs: XS): X :: XS =
-    FixT[FList[X, ?], XS](FCons(x, xs))
+    HFix[FList[X, ?], XS](FCons(x, xs))
 
   def main(args: Array[String]): Unit = {
 
@@ -37,7 +35,7 @@ object Fix6FixK {
     //Rendering.of(hIntString, "hIntString")
     println(hIntString)
 
-    val hIntStringInt: Int :: String :: Int :: HNil = hcons(1, hcons("a string", hcons(3, hnil)))
+    val hIntStringInt: Int :: String :: Double :: HNil = hcons(1, hcons("a string", hcons(1.61803, hnil)))
     //Rendering.of(hIntStringInt, "hIntStringInt")
     println(hIntStringInt)
 

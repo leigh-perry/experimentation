@@ -1,6 +1,6 @@
 package tech.fixnthat
 
-import tech.fixnthat.Fix6FixK.{FixT, HfBase, INil}
+import tech.fixnthat.Fix6HFix.{HFix, HfBase, HfNil}
 
 object Fix7Coproduct {
 
@@ -12,7 +12,7 @@ object Fix7Coproduct {
   final case class Inl[+H, +T](head: H) extends Cocons[H, T]
   final case class Inr[+H, +T](tail: T) extends Cocons[H, T]
 
-  type :+:[H, T <: HfBase] = FixT[Cocons[H, ?], T]
+  type :+:[H, T <: HfBase] = HFix[Cocons[H, ?], T]
 
   trait Inject[C <: HfBase, I] {
     def apply(i: I): C
@@ -23,12 +23,12 @@ object Fix7Coproduct {
 
     implicit def tlInject[H, T <: HfBase, I](implicit tlInj: Inject[T, I]): Inject[H :+: T, I] =
       new Inject[H :+: T, I] {
-        def apply(i: I): H :+: T = FixT(Inr(tlInj(i)))
+        def apply(i: I): H :+: T = HFix(Inr(tlInj(i)))
       }
 
     implicit def hdInject[H, T <: HfBase]: Inject[H :+: T, H] =
       new Inject[H :+: T, H] {
-        def apply(i: H): H :+: T = FixT(Inl(i))
+        def apply(i: H): H :+: T = HFix(Inl(i))
       }
   }
 
@@ -39,11 +39,11 @@ object Fix7Coproduct {
   def Coproduct[C <: HfBase] = new MkCoproduct[C]
 
 
-  val rrrr1 = Coproduct[Int :+: String :+: INil](1) // shouldBe FixT(Inl(1))
+  val rrrr1 = Coproduct[Int :+: String :+: HfNil](1) // shouldBe HFix(Inl(1))
   //Rendering.of(rrrr1, "rrrr1")
   println(rrrr1)
 
-  val rrrr2 = Coproduct[Int :+: String :+: INil]("bar") // shouldBe FixT(Inr(FixT(Inl("bar"))))
+  val rrrr2 = Coproduct[Int :+: String :+: HfNil]("bar") // shouldBe HFix(Inr(HFix(Inl("bar"))))
   //Rendering.of(rrrr2, "rrrr2")
   println(rrrr2)
 
