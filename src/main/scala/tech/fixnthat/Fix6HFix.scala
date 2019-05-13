@@ -32,11 +32,11 @@ object Fix6HFix {
     // while a List is only recursive at the value level.
     // Apart from that, they are the same.
     val hIntString: Int :: String :: HNil = hcons(1, hcons("bar", hnil))
-    //Rendering.of(hIntString, "hIntString")
+    //Rendering.of(hIntString, "6-hIntString")
     println(hIntString)
 
     val hIntStringInt: Int :: String :: Double :: HNil = hcons(1, hcons("a string", hcons(1.61803, hnil)))
-    //Rendering.of(hIntStringInt, "hIntStringInt")
+    //Rendering.of(hIntStringInt, "6-hIntStringInt")
     println(hIntStringInt)
 
   }

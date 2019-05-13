@@ -30,10 +30,10 @@ object Fix4ComposeListNel {
   def main(args: Array[String]): Unit = {
 
     val nel1 = nelCons((1, Some(nelCons((-1, None)))))
-    Rendering.of(nel1, "nel1")
+    Rendering.of(nel1, "3-nel1")
 
     val nel12 = nelCons((2, Some(nel1)))
-    Rendering.of(nel12, "nel12")
+    Rendering.of(nel12, "3-nel12")
 
     println(nel12)
 
@@ -50,13 +50,13 @@ object Fix4ComposeListNel {
     // type QList[A] = Fix[Nested[Option, (A, ?), ?]]
 
     val listNil: Fix[Nested[Option, (Int, ?), ?]] = listCons(None)
-    Rendering.of(listNil, "listNil")
+    Rendering.of(listNil, "3-listNil")
 
     val list1 = listCons(Some((1, listNil)))
-    Rendering.of(list1, "list1")
+    Rendering.of(list1, "3-list1")
 
     val list12 = listCons(Some((2, list1)))
-    Rendering.of(list12, "list12")
+    Rendering.of(list12, "3-list12")
 
     println(list12)
   }

@@ -12,10 +12,10 @@ object Fix5aCofreeList {
 
   def main(args: Array[String]): Unit = {
     val conel1: Cofree[Option, Int] = Cofree[Option, Int](1, None)
-    Rendering.of(conel1, "conel1")
+    Rendering.of(conel1, "5a-conel1")
 
     val conel12 = Cofree[Option, Int](1, Some(conel1))
-    Rendering.of(conel12, "conel12")
+    Rendering.of(conel12, "5a-conel12")
 
     println(conel12)
   }

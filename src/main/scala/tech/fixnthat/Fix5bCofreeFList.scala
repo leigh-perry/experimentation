@@ -26,10 +26,10 @@ object Fix5bCofreeFList {
 
   def main(args: Array[String]): Unit = {
     val fconel1: Cofree[Option, Int] = cofreeNode(1, None)
-    Rendering.of(fconel1, "fconel1")
+    Rendering.of(fconel1, "5b-fconel1")
 
     val fconel12 = cofreeNode(2, fconel1.some)
-    Rendering.of(fconel12, "fconel12")
+    Rendering.of(fconel12, "5b-fconel12")
 
     println(fconel12)
   }
