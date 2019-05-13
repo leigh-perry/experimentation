@@ -6,13 +6,13 @@ import tech.fixnthat.Fix2Type.Fix
 
 object Fix4ComposeListNel {
 
-  // script: Semantic equivalence
+  // >>> Semantic equivalence
   type XList[A] = Option[NonEmptyList[A]]
   type XNonEmptyList[A] = (A, List[A])
 
   // https://twitter.com/jaspervdj/status/1113347183208583168
   //  type NonEmpty a = Fix (Compose ((,) a) Maybe)
-  //  type List a = Fix (Compose Maybe ((,) a))
+  //  type List a =     Fix (Compose Maybe ((,) a))
   type CNel[A]  = Fix[Nested[(A, ?), Option, ?]] // (A, Option[x])
   type CList[A] = Fix[Nested[Option, (A, ?), ?]] // Option[(A, x)]
 

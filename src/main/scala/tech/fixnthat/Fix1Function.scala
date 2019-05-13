@@ -7,11 +7,11 @@ object Fix1Function {
     case n => n * f(n - 1)
   }
 
-  // script: ghci
+  // >>> ghci
 
   //Prelude> fac n = if (n < 3) then n else n * fac (n - 1)
   //Prelude> :t fac
-  //facexp :: (Ord t, Num t) => t -> t
+  //fac :: (Ord t, Num t) => t -> t
 
   //Prelude> fac f n = if (n < 3) then n else n * f (n - 1)
   //Prelude> :t fac
@@ -38,23 +38,25 @@ object Fix1Function {
   //Prelude> :t fixfac 5
   //fixfac 5 :: (Ord t, Num t) => t
 
-  // script: start with
+  ////
+
+  // >>> start with
   //  rec :: (t -> t) -> t
   //  rec f = f (rec f)
 
-  // script: convert naively to scala
+  // >>> convert naively to scala
   //  def rec[A, B]: (T => T) => T =
   //    f => f(rec(f))
 
-  // script: run it - stack overflow because scala is strict
+  // >>> run it - stack overflow because scala is strict
 
-  // script: note that T is actually A => A, eg Int => Int, so change each T into (A => A), ie
+  // >>> note that T is actually A => A, eg Int => Int, so change each T into (A => A), ie
   //  def rec[A, B]: ((A => A) => (A => A)) => (A => A) =
   //    f => f(rec(f))
 
-  // script: run it - stack overflow again
+  // >>> run it - stack overflow again
 
-  // script: note that returning (A => A) is same as returning A => A, so need to introduce an a parameter
+  // >>> note that returning (A => A) is same as returning A => A, so need to introduce an a parameter
   // so we have f => a => ..., so need to apply the a at the end:
   //  def rec[A, B]: ((A => A) => (A => A)) => A => A =
   //    f => a => f(rec(f))(a)
@@ -62,15 +64,18 @@ object Fix1Function {
   def rec[A]: ((A => A) => A => A) => A => A =
     f => a => f(rec(f))(a)
 
-  // script: run now works
+  // >>> run now works
 
-  // script: rename rec to fix
+  // >>> rename rec to fix
 
   def main(args: Array[String]): Unit = {
     val fixed: Int => Int = rec(factorial)
     println(fixed(6))
 
-    // script: origin of name `fix point`
+    // >>> origin of name `fix point`
+    // A fixed point of a function is a value that, when applied as the input of the function, returns
+    // the same value as its output
+    //
     //    x = cos(x)
 
     //    var x = 123.4 // don't @ me
@@ -80,18 +85,16 @@ object Fix1Function {
     //    }
     //    println(x)
 
-    //    if (true) {
-    //      // solve x*x - 2x - 1 = 0
-    //      // x*x - 2x - 1 = 0
-    //      // x*x = 2x + 1
-    //      // x = 2 + (1/x)
-    //      var x = 123.4 // don't @ me
-    //      for (_ <- 0 to 10) {
-    //        println(x)
-    //        x = 2 + (1 / x)
-    //      }
+    //    // solve x*x - 2x - 1 = 0
+    //    // x*x - 2x - 1 = 0
+    //    // x*x = 2x + 1
+    //    // x = 2 + (1/x)
+    //    var x = 123.4 // don't @ me
+    //    for (_ <- 0 to 10) {
     //      println(x)
+    //      x = 2 + (1 / x)
     //    }
+    //    println(x)
 
     if (true) {
       // solve x*x + 2x + 1 = 0

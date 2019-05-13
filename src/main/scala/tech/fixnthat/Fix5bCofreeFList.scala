@@ -11,16 +11,16 @@ object Fix5bCofreeFList {
   // https://youtu.be/D8LdznWynyw?t=146
   // https://github.com/sellout/recursion-scheme-talk/blob/master/fix-ing-your-types.org
 
-  // script: remove recursion from definition in usual way:
+  // >>> remove recursion from definition in usual way:
   //  generalise Cofree to A and B, and replace tail with B
   //final case class Cofree[F[_], A    ](head: A, tail: F[QCofree[F, A]])
   //final case class CofreeF[F[_], A, B](head: A, tail: F[B])
 
-  // script: rename CofreeF => EnvT, head => ask, tail => lower
+  // >>> rename CofreeF => EnvT, head => ask, tail => lower
   final case class EnvT[F[_], A, B](ask: A, lower: F[B])
 
-  // script: the idea of replacing the explicit recursive element with a polymorphic type is `pattern functor`
-  // script: EnvT is the pattern functor of Cofree
+  // >>> the idea of replacing the explicit recursive element with a polymorphic type is `pattern functor`
+  // >>> EnvT is the pattern functor of Cofree
 
   type Cofree[F[_], A] = Fix[EnvT[F, A, ?]]
 

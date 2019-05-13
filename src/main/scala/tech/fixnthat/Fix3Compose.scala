@@ -8,13 +8,13 @@ import cats.instances.option._
 
 object Fix3Compose {
 
-  // script: detour into Compose / Nested
+  // >>> detour into Compose / Nested
   //    nested functors compose
 
   //  Prelude>:t Compose
   //    Compose :: f (g a) -> Compose f g a
 
-  // script:
+  // >>>
   //  in cats
   // final case class Nested[F[_], G[_], A](value: F[G[A]])
 
