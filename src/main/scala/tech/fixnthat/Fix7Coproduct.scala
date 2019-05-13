@@ -10,7 +10,7 @@ object Fix7Coproduct {
 
   sealed trait Cocons[+H, +T]
   final case class First[+H, +T](head: H) extends Cocons[H, T]
-  final case class Subsequent[+H, +T](tail: T) extends Cocons[H, T]
+  final case class Next[+H, +T](tail: T) extends Cocons[H, T]
 
   type :+:[H, T <: HfBase] = HFix[Cocons[H, ?], T]
 
@@ -35,7 +35,7 @@ object Fix7Coproduct {
     implicit def tailInject[H, T <: HfBase, A](implicit tlInj: Inject[T, A]): Inject[H :+: T, A] =
       new Inject[H :+: T, A] {
         def apply(value: A): H :+: T = {
-          val injected: Cocons[H, T] = Subsequent(tlInj(value))
+          val injected: Cocons[H, T] = Next(tlInj(value))
           println("tailInject: " + HFix(injected))
           HFix(injected)
         }
