@@ -5,6 +5,7 @@ import tech.fixnthat.Fix2Type.{FCons, FList, FNil}
 object Fix6HFix {
 
   // >>> type level Fix - eliminate the Fix in F[Fix[F]
+
   trait HfBase
   //final case class Fix[F[_]]            (unfix: F[Fix[F]])
   final case class HFix[F[_], G <: HfBase](unfix: F[G]) extends HfBase
