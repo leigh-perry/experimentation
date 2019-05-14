@@ -10,11 +10,10 @@ object Fix4ComposeListNel {
   type XList[A] = Option[NonEmptyList[A]]
   type XNonEmptyList[A] = (A, List[A])
 
-  // https://twitter.com/jaspervdj/status/1113347183208583168
   //  type NonEmpty a = Fix (Compose ((,) a) Maybe)
   //  type List a =     Fix (Compose Maybe ((,) a))
-  type CNel[A]  = Fix[Nested[(A, ?), Option, ?]] // (A, Option[x])
-  type CList[A] = Fix[Nested[Option, (A, ?), ?]] // Option[(A, x)]
+  type CNonEmpty[A] = Fix[Nested[(A, ?), Option, ?]] // (A, Option[x])
+  type CList[A]     = Fix[Nested[Option, (A, ?), ?]] // Option[(A, x)]
 
   // https://gist.github.com/jaspervdj/f43d93bf5abfa2af5e67b04612884199
 
@@ -29,36 +28,32 @@ object Fix4ComposeListNel {
 
   def main(args: Array[String]): Unit = {
 
-    val nel1 = nelCons((1, Some(nelCons((-1, None)))))
-    Rendering.of(nel1, "3-nel1")
+    if (false) {
+      // type CNel[A] = Fix[Nested[(A, ?), Option, ?]]
 
-    val nel12 = nelCons((2, Some(nel1)))
-    Rendering.of(nel12, "3-nel12")
+      val nel1 = nelCons((1, Some(nelCons((-1, None)))))
+      Rendering.of(nel1, "4-nel1")
 
-    println(nel12)
+      val nel12 = nelCons((2, Some(nel1)))
+      Rendering.of(nel12, "4-nel12")
 
-    ////
+      println(nel12)
+    }
 
-    //    Rendering.animate(
-    //      Animation.startWith(nelNil)
-    //        .iterateWithIndex(1)((nel, i) => nelCons((i, Some(nel)))),
-    //      "nelGrow"
-    //    )
+    if (true) {
+      // type CList[A] = Fix[Nested[Option, (A, ?), ?]]
 
-    ////
+      val listNil: Fix[Nested[Option, (Int, ?), ?]] = listCons(None)
+      Rendering.of(listNil, "4-listNil")
 
-    // type QList[A] = Fix[Nested[Option, (A, ?), ?]]
+      val list1 = listCons(Some((1, listNil)))
+      Rendering.of(list1, "4-list1")
 
-    val listNil: Fix[Nested[Option, (Int, ?), ?]] = listCons(None)
-    Rendering.of(listNil, "3-listNil")
+      val list12 = listCons(Some((2, list1)))
+      Rendering.of(list12, "4-list12")
 
-    val list1 = listCons(Some((1, listNil)))
-    Rendering.of(list1, "3-list1")
-
-    val list12 = listCons(Some((2, list1)))
-    Rendering.of(list12, "3-list12")
-
-    println(list12)
+      println(list12)
+    }
   }
 
   ////

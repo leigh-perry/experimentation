@@ -7,10 +7,18 @@ object Fix2Type {
   // >>> convert
   //  rec f = f (rec f)
   // to types
-  //  final case class Rec[F[_]](f    : F[Rec[F]])
+  /*
+    final case class Rec[F[_]](f    : F[Rec[F]])
+  */
 
   // >>> rename to Fix & unfix
+
+  // TODO
   final case class Fix[F[_]](unfix: F[Fix[F]])
+
+  /*
+  final case class Fix[F[_]](unfix: F[Fix[F]])
+  */
 
   sealed trait FList[+H, +T]
   final case class FCons[H, T](h: H, t: T) extends FList[H, T]
