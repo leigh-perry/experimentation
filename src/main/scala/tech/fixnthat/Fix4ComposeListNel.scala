@@ -12,8 +12,8 @@ object Fix4ComposeListNel {
 
   //  type NonEmpty a = Fix (Compose ((,) a) Maybe)
   //  type List a =     Fix (Compose Maybe ((,) a))
-  type CNonEmpty[A] = Fix[Nested[(A, ?), Option, ?]] // (A, Option[x])
-  type CList[A]     = Fix[Nested[Option, (A, ?), ?]] // Option[(A, x)]
+  type CNonEmpty[A] = Fix[Nested[(A, ?), Option, ?]] // (A, Option[?])
+  type CList[A]     = Fix[Nested[Option, (A, ?), ?]] // Option[(A, ?)]
 
   // https://gist.github.com/jaspervdj/f43d93bf5abfa2af5e67b04612884199
 
@@ -40,7 +40,7 @@ object Fix4ComposeListNel {
       println(nel12)
     }
 
-    if (true) {
+    if (false) {
       // type CList[A] = Fix[Nested[Option, (A, ?), ?]]
 
       val listNil: Fix[Nested[Option, (Int, ?), ?]] = listCons(None)

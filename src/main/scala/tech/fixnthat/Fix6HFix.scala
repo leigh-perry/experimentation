@@ -4,10 +4,10 @@ import tech.fixnthat.Fix2Type.{FCons, FList, FNil}
 
 object Fix6HFix {
 
-  // >>> type level Fix - eliminate the Fix in F[Fix[F]
+  // >>> type level Fix - eliminate the recursion in F[Fix[F]
 
   trait HfBase
-  //final case class Fix[F[_]]            (unfix: F[Fix[F]])
+  //    case class Fix[F[_]]              (unfix: F[Fix[F]])
   final case class HFix[F[_], G <: HfBase](unfix: F[G]) extends HfBase
   trait HfNil extends HfBase
 
@@ -17,29 +17,27 @@ object Fix6HFix {
 
   // >>> using previous fixed list (FList) can define HList
 
-  type HNil = HFix[FList[Nothing, ?], HfNil]
+  // >>> Create a type-level list using HFix
   type ::[X, XS <: HfBase] = HFix[FList[X, ?], XS]
+  type HNil = HFix[FList[Nothing, ?], HfNil]
 
-  val hnil: HNil = HFix[FList[Nothing, ?], HfNil](FNil)
+  def main(args: Array[String]): Unit = {
+
+    val hIntString: Int :: String :: HNil =
+      hcons(1, hcons("bar", hnil))
+    //Rendering.of(hIntString, "6-hIntString")
+    println(hIntString)
+
+    val hIntStringDouble: Int :: String :: Double :: HNil =
+      hcons(1, hcons("a string", hcons(1.61803, hnil)))
+    //Rendering.of(hIntStringDouble, "6-hIntStringDouble")
+    println(hIntStringDouble)
+
+  }
 
   def hcons[X, XS <: HfBase](x: X, xs: XS): X :: XS =
     HFix[FList[X, ?], XS](FCons(x, xs))
 
-  def main(args: Array[String]): Unit = {
-
-    // >>>
-    // the only difference between a List and a HList is the recursion scheme.
-    // A HList is recursive at both the type and value level at the same time,
-    // while a List is only recursive at the value level.
-    // Apart from that, they are the same.
-    val hIntString: Int :: String :: HNil = hcons(1, hcons("bar", hnil))
-    //Rendering.of(hIntString, "6-hIntString")
-    println(hIntString)
-
-    val hIntStringInt: Int :: String :: Double :: HNil = hcons(1, hcons("a string", hcons(1.61803, hnil)))
-    //Rendering.of(hIntStringInt, "6-hIntStringInt")
-    println(hIntStringInt)
-
-  }
+  val hnil: HNil = HFix[FList[Nothing, ?], HfNil](FNil)
 
 }

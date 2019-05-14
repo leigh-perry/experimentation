@@ -24,8 +24,9 @@ object Fix2Type {
   final case class FCons[H, T](h: H, t: T) extends FList[H, T]
   case object FNil extends FList[Nothing, Nothing]
 
-  // >>> can't create a list using these directly - can't do without Fix since can't specify type of tail
-  //val nestedlist: FCons[Int, FList[Int, FList[Int, FList[...]]]](1, ???)
+  // >>> can't create a list using these directly - can't do without Fix
+  // since can't specify type of tail
+  //val nestedlist: FCons[Int, FCons[Int, FCons[Int, FNil]]](1, ???)
 
   def fnil[A] =
     Fix[FList[A, ?]](FNil)

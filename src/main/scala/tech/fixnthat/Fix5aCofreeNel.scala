@@ -6,10 +6,6 @@ object Fix5aCofreeNel {
 
   final case class Cofree[F[_], A](head: A, tail: F[Cofree[F, A]])
 
-  // >>> A comonad, compared to a monad, provides the means of extracting a single value from it.
-  // So if you want to think of a comonad as a container, it always comes pre-filled with contents,
-  // and it lets you peek at it.
-
   // type NonEmpty a = Cofree Maybe a
   type CofreeNel[A] = Cofree[Option, A]
 

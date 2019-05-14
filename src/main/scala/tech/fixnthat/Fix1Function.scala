@@ -69,10 +69,8 @@ object Fix1Function {
     */
 
 
-    def factorial(f: Int => Int): Int => Int = {
-      case 1 => 1
-      case n => n * f(n - 1)
-    }
+    def factorial(f: Int => Int): Int => Int =
+      n => if (n == 1) 1 else n * f(n - 1)
 
     val fixed: Int => Int = rec(factorial)
     println(fixed(6))
@@ -81,7 +79,8 @@ object Fix1Function {
 
     if (false) {
       // >>> origin of name `fix point`
-      // A fixed point of a function is a value that, when applied as the input of the function, returns
+      // A fixed point of a function is a value that, when applied as
+      // the input of the function, returns
       // the same value as its output
       //
       //    x = cos(x)
