@@ -6,12 +6,12 @@ import tech.fixnthat.Fix2Type.Fix
 
 object Fix5bCofreeFList {
 
-  //final case class Cofree[S[_], A](head: A, tail: S[Cofree[S, A]])
+  //final case class Cofree[F[_], A](head: A, tail: F[Cofree[F, A]])
 
   // >>> remove recursion from definition in usual way:
   //  generalise Cofree to A and B, and replace tail with F[B]
 
-  //final case class Cofree[F[_], A    ](head: A, tail: F[Cofree[F, A]])
+  //final case class Cofree [F[_], A   ](head: A, tail: F[Cofree[F, A]])
   //final case class CofreeF[F[_], A, B](head: A, tail: F[B])
 
   // >>> rename CofreeF => EnvT, head => ask, tail => lower
