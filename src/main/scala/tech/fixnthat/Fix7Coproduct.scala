@@ -46,7 +46,7 @@ object Fix7Coproduct {
       new Inject[H :+: T, H] {
         def apply(value: H): H :+: T = {
           val injected: Cocons[H, T] = Present(value)
-          //println("headInject: " + HFix(injected))
+          //println("present: " + HFix(injected))
           HFix(injected)
         }
       }
@@ -56,7 +56,7 @@ object Fix7Coproduct {
       new Inject[H :+: T, A] {
         def apply(value: A): H :+: T = {
           val injected: Cocons[H, T] = Missing(tlInj(value))
-          //println("tailInject: " + HFix(injected))
+          //println("missing: " + HFix(injected))
           HFix(injected)
         }
       }
