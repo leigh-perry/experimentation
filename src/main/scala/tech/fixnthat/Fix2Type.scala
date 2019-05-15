@@ -28,12 +28,6 @@ object Fix2Type {
   // since can't specify type of tail
   //val nestedlist: FCons[Int, FCons[Int, FCons[Int, FNil]]](1, ???)
 
-  def fnil[A] =
-    Fix[FList[A, ?]](FNil)
-
-  def fcons[A](h: A, t: Fix[FList[A, ?]]) =
-    Fix[FList[A, ?]](FCons(h, t))
-
   def main(args: Array[String]): Unit = {
 
     val alist: Fix[FList[Int, ?]] = fcons(1, fcons(2, fnil))
@@ -41,5 +35,11 @@ object Fix2Type {
     println(alist)
     Rendering.of(alist, "2-alist")
   }
+
+  def fnil[A] =
+    Fix[FList[A, ?]](FNil)
+
+  def fcons[A](h: A, t: Fix[FList[A, ?]]) =
+    Fix[FList[A, ?]](FCons(h, t))
 
 }

@@ -6,7 +6,7 @@ import tech.fixnthat.Fix2Type.Fix
 
 object Fix4ComposeListNel {
 
-  // >>> Semantic equivalence
+  // >>> Relative complexity of List and NEL - equivalent
   type XList[A] = Option[NonEmptyList[A]]
   type XNonEmptyList[A] = (A, List[A])
 
@@ -15,19 +15,20 @@ object Fix4ComposeListNel {
   type CNonEmpty[A] = Fix[Nested[(A, ?), Option, ?]] // (A, Option[?])
   type CList[A]     = Fix[Nested[Option, (A, ?), ?]] // Option[(A, ?)]
 
-  // https://gist.github.com/jaspervdj/f43d93bf5abfa2af5e67b04612884199
+  /*
+  ne1, ne2 :: NonEmpty Int
+  ne1 = Fix (Compose (1, Nothing))
+  ne2 = Fix (Compose (1, Just (Fix (Compose (2, Nothing)))))
 
-  // ne1, ne2 :: NonEmpty Int
-  // ne1 = Fix (Compose (1, Nothing))
-  // ne2 = Fix (Compose (1, Just (Fix (Compose (2, Nothing)))))
-
-  // l0, l1, l2 :: List Int
-  // l0 = Fix (Compose Nothing)
-  // l1 = Fix (Compose (Just (1, Fix (Compose Nothing))))
-  // l2 = Fix (Compose (Just (1, Fix (Compose (Just (2, Fix (Compose Nothing)))))))
+  l0, l1, l2 :: List Int
+  l0 = Fix (Compose Nothing)
+  l1 = Fix (Compose (Just (1, Fix (Compose Nothing))))
+  l2 = Fix (Compose (Just (1, Fix (Compose (Just (2, Fix (Compose Nothing)))))))
+  */
 
   def main(args: Array[String]): Unit = {
 
+    // >>> NEL example
     if (false) {
       // type CNel[A] = Fix[Nested[(A, ?), Option, ?]]
 
@@ -40,6 +41,7 @@ object Fix4ComposeListNel {
       println(nel12)
     }
 
+    // >>> List example
     if (false) {
       // type CList[A] = Fix[Nested[Option, (A, ?), ?]]
 

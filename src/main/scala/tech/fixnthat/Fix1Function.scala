@@ -94,6 +94,8 @@ object Fix1Function {
     }
 
     if (false) {
+      // related to numerical methods
+      //
       // solve x*x + 2x + 1 = 0
       // x*x = -2x - 1
       // x = -2 - (1/x)

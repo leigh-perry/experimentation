@@ -11,7 +11,7 @@ object Fix5bCofreeFNel {
   // >>> remove recursion from definition in usual way:
   //  generalise Cofree to A and B, and replace tail with F[B]
 
-  //final case class Cofree [F[_], A   ](head: A, tail: F[Cofree[F, A]])
+  //    case class Cofree [F[_], A   ](head: A, tail: F[Cofree[F, A]])
   final case class CofreeF[F[_], A, B](head: A, tail: F[B])
 
   // >>> rename CofreeF => EnvT, head => ask, tail => lower
@@ -19,7 +19,8 @@ object Fix5bCofreeFNel {
 
   type Cofree[F[_], A] = Fix[EnvT[F, A, ?]]
 
-  // >>> the idea of replacing the explicit recursive element with a polymorphic type is `pattern functor`
+  // >>> the idea of replacing the explicit recursive element with
+  //     a polymorphic type: `pattern functor`
   // >>> EnvT is the pattern functor of Cofree
 
   def main(args: Array[String]): Unit = {
@@ -34,4 +35,5 @@ object Fix5bCofreeFNel {
 
   private def cofreeNode(ask: Int, lower: Option[Fix[EnvT[Option, Int, ?]]]) =
     Fix[EnvT[Option, Int, ?]](EnvT(ask, lower))
+
 }

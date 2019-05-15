@@ -4,14 +4,35 @@ import tech.fixnthat.Fix6HFix.{HFix, HfBase, HfNil}
 
 object Fix7Coproduct {
 
-  // Coproduct
+  // Coproduct using HFix
 
-  // ADT representing coproduct choices
+  // GADT representing coproduct choices
   sealed trait Cocons[+H, +T]
   final case class Present[+H, +T](head: H) extends Cocons[H, T]
   final case class Missing[+H, +T](tail: T) extends Cocons[H, T]
 
   type :+:[H, T <: HfBase] = HFix[Cocons[H, ?], T]
+
+  def main(args: Array[String]): Unit = {
+
+    val coInt: Int :+: String :+: HfNil =
+      coproduct[Int :+: String :+: HfNil](1)
+    println(coInt)
+
+    val coString: Int :+: String :+: HfNil =
+      coproduct[Int :+: String :+: HfNil]("bar")
+    println(coString)
+
+    val coDouble: Int :+: String :+: Double :+: HfNil =
+      coproduct[Int :+: String :+: Double :+: HfNil](1.234)
+    println(coDouble)
+
+  }
+
+  def coproduct[C <: HfBase]: HCoproduct[C] =
+    new HCoproduct[C]
+
+  ////
 
   trait Inject[C <: HfBase, I] {
     def apply(i: I): C
@@ -45,24 +66,5 @@ object Fix7Coproduct {
     def apply[T](t: T)(implicit inj: Inject[C, T]): C =
       inj(t)
   }
-
-  def main(args: Array[String]): Unit = {
-
-    val coInt: Int :+: String :+: HfNil =
-      coproduct[Int :+: String :+: HfNil](1)
-    println(coInt)
-
-    val coString: Int :+: String :+: HfNil =
-      coproduct[Int :+: String :+: HfNil]("bar")
-    println(coString)
-
-    val coDouble: Int :+: String :+: Double :+: HfNil =
-      coproduct[Int :+: String :+: Double :+: HfNil](1.234)
-    println(coDouble)
-
-  }
-
-  def coproduct[C <: HfBase]: HCoproduct[C] =
-    new HCoproduct[C]
 
 }
