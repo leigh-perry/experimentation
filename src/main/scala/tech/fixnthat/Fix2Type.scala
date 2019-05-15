@@ -13,7 +13,6 @@ object Fix2Type {
 
   // >>> rename to Fix & unfix
 
-  // TODO
   final case class Fix[F[_]](unfix: F[Fix[F]])
 
   /*

@@ -43,7 +43,6 @@ object Fix1Function {
     //   rec :: (t -> t) -> t
     //   rec f = f(rec f)
 
-    // TODO
     def rec[A]: ((A => A) => A => A) => A => A =
       f => a => f(rec(f))(a)
 
