@@ -68,8 +68,8 @@ object Fix1Function {
     */
 
 
-    def factorial(f: Int => Int): Int => Int =
-      n => if (n == 1) 1 else n * f(n - 1)
+    def factorial: (Int => Int) => Int => Int =
+      f => n => if (n == 1) 1 else n * f(n - 1)
 
     val fixed: Int => Int = rec(factorial)
     println(fixed(6))
