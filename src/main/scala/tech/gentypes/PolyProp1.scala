@@ -11,9 +11,6 @@ final case class TypedPipe[+A] private(list: List[A]) {
   def flatMap[B](f: A => TypedPipe[B]): TypedPipe[B] = TypedPipe(list.flatMap(f andThen (_.list)))
   def filter(p: A => Boolean): TypedPipe[A] = TypedPipe(list.filter(p))
   def distinct = TypedPipe(list.distinct)
-
-  //  — group
-  //  — join
   def length = list.length
 }
 

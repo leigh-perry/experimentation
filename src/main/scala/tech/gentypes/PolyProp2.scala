@@ -70,6 +70,7 @@ object PolyProp2
     implicit val genChar = arbitrary[Char]
     implicit val genShort = arbitrary[Short]
     implicit val genInt = arbitrary[Int]
+    implicit val genLong = arbitrary[Long]
 
     // if we have implicit Gen, Cogen, this works
     val testWith: TypeWith[Testing] = TypeWith[Int, Testing]
@@ -113,23 +114,56 @@ object PolyProp2
           genFrom(t),
           genFilter(t),
           genMap(t),
-          //genFlatMap(t),
         )
       )
 
     ////
 
-    val x: Gen[TypedPipe[TypeWith[Testing]#Type]] =
+    Prop.forAll(
       for {
         t <- genType
         p <- genPipe(t)
       } yield p
-
-    Prop.forAll(x) {
+    ) {
       tp =>
         println(dump(tp))
         tp.shouldSatisfy(_.length >= 0)
-    }.check(Test.Parameters.default.withMinSuccessfulTests(130))
+    }.check(Test.Parameters.default.withMinSuccessfulTests(110))
+
+    ////
+
+    def genFlatMap(tB: TypeWith[Testing]): Gen[TypedPipe[tB.Type]] =
+      for {
+        tA <- genType
+        pipe <- genPipe2(tA)
+        f <- Gen.function1(tB.evidence.gen)(tA.evidence.cogen)
+      } yield pipe.flatMap(
+        a =>
+          TypedPipe(List.fill(5)(f(a)))
+      )
+
+    def genPipe2(t: TypeWith[Testing]): Gen[TypedPipe[t.Type]] =
+      Gen.delay(
+        Gen.oneOf(
+          genFrom(t),
+          genFilter(t),
+          genMap(t),
+          genFlatMap(t),
+        )
+      )
+
+    ////
+
+    Prop.forAll(
+      for {
+        t <- genType
+        p <- genPipe2(t)
+      } yield p
+    ) {
+      tp =>
+        println(dump(tp))
+        tp.shouldSatisfy(_.length >= 0)
+    }.check(Test.Parameters.default.withMinSuccessfulTests(120))
 
   }
 
@@ -141,7 +175,7 @@ object PolyProp2
     } else {
       tp.list
         .map(_.toString)
-        .mkString(s"${tp.list.head.getClass.getSimpleName}: [", ",", "]")
+        .mkString(s"${tp.list.head.getClass.getSimpleName}: [", ", ", "]")
     }
 
 }
