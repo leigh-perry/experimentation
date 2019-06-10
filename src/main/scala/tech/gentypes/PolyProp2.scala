@@ -126,9 +126,9 @@ object PolyProp2 {
         p <- genColl(t)
       } yield p
     ) {
-      tp =>
-        println(tp.show)
-        tp === tp.reverse.reverse
+      c =>
+        println(c.show)
+        c === c.reverse.reverse
     }.check
 
     ////
@@ -161,9 +161,9 @@ object PolyProp2 {
         p <- genColl2(t)
       } yield p
     ) {
-      tp =>
-        println(tp.show)
-        tp === tp.reverse.reverse
+      c =>
+        println(c.show)
+        c === c.reverse.reverse
     }.check
 
   }

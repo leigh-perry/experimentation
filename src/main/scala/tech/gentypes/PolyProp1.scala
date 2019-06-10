@@ -40,8 +40,8 @@ object PolyProp1 {
         gf = Gen.function1(arbitrary[Int])(implicitly[Cogen[Int]])
       )
     ) {
-      tp =>
-        tp.length === 10
+      c =>
+        c.length === 10
     }.check
 
     ////
@@ -64,8 +64,8 @@ object PolyProp1 {
     ////
 
     Prop.forAll(genColl(Gen.const(10), arbitrary[Int])) {
-      tp =>
-        tp.length <= 10
+      c =>
+        c.length <= 10
     }.check
   }
 }

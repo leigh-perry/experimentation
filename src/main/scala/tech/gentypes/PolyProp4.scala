@@ -87,8 +87,8 @@ object PolyProp4 {
         p <- genColl(t)
       } yield p
     ) {
-      tp =>
-        tp === tp.map(identity)
+      c =>
+        c === c.map(identity)
     }.check
 
     ////
@@ -107,7 +107,7 @@ object PolyProp4 {
         // def associative[A, B, C](fa: F[A], fab: A => B, fbc: B => C)(implicit FC: Equal[F[C]]): Boolean =
         //  FC.equal(map(map(fa)(fab))(fbc), map(fa)(fbc compose fab))
 
-        val fab = Gen.function1(tB.evidence.gen)(tA.evidence.cogen).sample.get
+        val fab: tA.Type => tB.Type = Gen.function1(tB.evidence.gen)(tA.evidence.cogen).sample.get
         val fbc: tB.Type => tC.Type = Gen.function1(tC.evidence.gen)(tB.evidence.cogen).sample.get
 
         // TODO resolve this

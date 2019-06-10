@@ -48,12 +48,12 @@ object PolyProp3 {
         t0 <- genType
         coll <- genFrom(t0)
         ordering = t0.evidence.ordering
-        tp = Coll(coll.list.sorted(ordering))
-      } yield tp
+        c = Coll(coll.list.sorted(ordering))
+      } yield c
     ) {
-      tp =>
-        println(tp.show)
-        isSorted(tp.list)
+      c =>
+        println(c.show)
+        isSorted(c.list)
     }.check
 
   }
