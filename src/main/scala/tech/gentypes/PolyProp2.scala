@@ -84,7 +84,8 @@ object PolyProp2
         TypeWith[Byte, Testing],
         TypeWith[Char, Testing],
         TypeWith[Short, Testing],
-        TypeWith[Int, Testing]
+        TypeWith[Int, Testing],
+        TypeWith[Long, Testing],
       )
 
     ////
@@ -128,7 +129,7 @@ object PolyProp2
       tp =>
         println(dump(tp))
         tp.shouldSatisfy(_.length >= 0)
-    }.check(Test.Parameters.default.withMinSuccessfulTests(110))
+    }.check
 
     ////
 
@@ -163,7 +164,7 @@ object PolyProp2
       tp =>
         println(dump(tp))
         tp.shouldSatisfy(_.length >= 0)
-    }.check(Test.Parameters.default.withMinSuccessfulTests(120))
+    }.check
 
   }
 

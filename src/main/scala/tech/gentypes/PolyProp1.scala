@@ -1,7 +1,7 @@
 package tech.gentypes
 
 import org.scalacheck.Arbitrary.arbitrary
-import org.scalacheck.{Cogen, Gen, Prop, Test}
+import org.scalacheck.{Arbitrary, Cogen, Gen, Prop, Test}
 import support.TestSupport
 
 import scala.collection.immutable.List
@@ -109,10 +109,9 @@ object PolyProp1
 
     ////
 
-    def genPipe[A: Cogen](count: Gen[Int], g: Gen[A]): Gen[TypedPipe[A]] = {
-      val c: Cogen[A] = implicitly
-      val gp: Gen[A => Boolean] = Gen.function1(arbitrary[Boolean])(c) // arbitrary[A => Boolean]
-      val gf: Gen[A => A] = Gen.function1(g)(c) // arbitrary[A => A]
+    def genPipe[A : Arbitrary: Cogen](count: Gen[Int], g: Gen[A]): Gen[TypedPipe[A]] = {
+      val gp: Gen[A => Boolean] = arbitrary[A => Boolean]
+      val gf: Gen[A => A] = arbitrary[A => A]
 
       lazy val self: Gen[TypedPipe[A]] =
         Gen.delay(
