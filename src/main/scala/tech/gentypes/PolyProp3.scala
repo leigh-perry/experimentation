@@ -1,9 +1,10 @@
 package tech.gentypes
 
+import cats.syntax.show._
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Cogen, Gen, Prop}
 import support.TestSupport
-import tech.gentypes.PolyProp2.dump
+import tech.gentypes.Temp.isSorted
 
 object PolyProp3
   extends TestSupport {
@@ -35,30 +36,27 @@ object PolyProp3
         TypeWith[String, OrderedTesting],
       )
 
-    def genFrom(t: TypeWith[OrderedTesting]): Gen[TypedPipe[t.Type]] =
+    def genFrom(t: TypeWith[OrderedTesting]): Gen[Coll[t.Type]] =
       for {
         n <- Gen.chooseNum(0, 10)
         lst <- Gen.listOfN(n, t.evidence.gen)
-      } yield TypedPipe(lst)
+      } yield Coll(lst)
 
     ////
 
     Prop.forAll(
       for {
         t0 <- genType
-        pipe <- genFrom(t0)
+        coll <- genFrom(t0)
         ordering = t0.evidence.ordering
-        tp = TypedPipe(pipe.list.sorted(ordering))
+        tp = Coll(coll.list.sorted(ordering))
       } yield tp
     ) {
       tp =>
-        println(dump(tp))
-        tp.list.shouldSatisfy(l => isSorted(l))
+        println(tp.show)
+        tp.list.shouldSatisfy(isSorted)
     }.check
 
   }
-
-  def isSorted[A](l: List[A]): Boolean =
-    true  // TODO delegate to List
 
 }

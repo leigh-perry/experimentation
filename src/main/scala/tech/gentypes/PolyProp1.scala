@@ -6,14 +6,6 @@ import support.TestSupport
 
 import scala.collection.immutable.List
 
-final case class TypedPipe[+A] private(list: List[A]) {
-  def map[B](f: A => B): TypedPipe[B] = TypedPipe(list.map(f))
-  def flatMap[B](f: A => TypedPipe[B]): TypedPipe[B] = TypedPipe(list.flatMap(f andThen (_.list)))
-  def filter(p: A => Boolean): TypedPipe[A] = TypedPipe(list.filter(p))
-  def distinct = TypedPipe(list.distinct)
-  def length = list.length
-}
-
 object PolyProp1
   extends TestSupport {
 
@@ -32,11 +24,11 @@ object PolyProp1
     // Generators
     ////////////////////////////////////////////////////////////////////////////////
 
-    def genFrom[A](count: Gen[Int], g: Gen[A]): Gen[TypedPipe[A]] =
+    def genFrom[A](count: Gen[Int], g: Gen[A]): Gen[Coll[A]] =
       for {
         n <- count
         lst <- Gen.listOfN(n, g)
-      } yield TypedPipe(lst)
+      } yield Coll(lst)
 
     ////////////////////////////////////////////////////////////////////////////////
     // Generating functions
@@ -59,17 +51,17 @@ object PolyProp1
 
     ////
 
-    def genFilter[A](gpipe: Gen[TypedPipe[A]], gp: Gen[A => Boolean]): Gen[TypedPipe[A]] =
+    def genFilter[A](gcoll: Gen[Coll[A]], gp: Gen[A => Boolean]): Gen[Coll[A]] =
       for {
-        pipe <- gpipe
+        coll <- gcoll
         predicate <- gp
-      } yield pipe.filter(predicate)
+      } yield coll.filter(predicate)
 
     ////
 
     Prop.forAll(
       genFilter(
-        gpipe = genFrom(Gen.choose(0, 20), arbitrary[String]),
+        gcoll = genFrom(Gen.choose(0, 20), arbitrary[String]),
         gp = (_: String) => false
       )
     ) {
@@ -89,17 +81,17 @@ object PolyProp1
 
     ////
 
-    def genMap[A, B](gpipe: Gen[TypedPipe[A]], gf: Gen[A => B]): Gen[TypedPipe[B]] =
+    def genMap[A, B](gcoll: Gen[Coll[A]], gf: Gen[A => B]): Gen[Coll[B]] =
       for {
-        pipe <- gpipe
+        coll <- gcoll
         f <- gf
-      } yield pipe.map(f)
+      } yield coll.map(f)
 
     ////
 
     Prop.forAll(
       genMap(
-        gpipe = genFrom(Gen.const(10), arbitrary[Int]),
+        gcoll = genFrom(Gen.const(10), arbitrary[Int]),
         gf = Gen.function1(arbitrary[Int])(implicitly[Cogen[Int]])
       )
     ) {
@@ -109,11 +101,11 @@ object PolyProp1
 
     ////
 
-    def genPipe[A : Arbitrary: Cogen](count: Gen[Int], g: Gen[A]): Gen[TypedPipe[A]] = {
+    def genColl[A: Arbitrary : Cogen](count: Gen[Int], g: Gen[A]): Gen[Coll[A]] = {
       val gp: Gen[A => Boolean] = arbitrary[A => Boolean]
       val gf: Gen[A => A] = arbitrary[A => A]
 
-      lazy val self: Gen[TypedPipe[A]] =
+      lazy val self: Gen[Coll[A]] =
         Gen.delay(
           Gen.oneOf(
             genFrom(count, g),
@@ -126,7 +118,7 @@ object PolyProp1
 
     ////
 
-    Prop.forAll(genPipe(Gen.const(10), arbitrary[Int])) {
+    Prop.forAll(genColl(Gen.const(10), arbitrary[Int])) {
       tp =>
         tp.length <= 10
     }.check(Test.Parameters.default.withMinSuccessfulTests(140))

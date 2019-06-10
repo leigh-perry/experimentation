@@ -1,10 +1,7 @@
 package tech.gentypes
 
-import org.scalacheck.{Arbitrary, Cogen, Gen}
-import org.scalacheck.Arbitrary.arbitrary
+object Temp {
 
-class Temp {
-  val af: Gen[Boolean => Int] = arbitrary[Boolean => Int]
-
-  def afa[A](implicit cogenA: Cogen[A]): Gen[A => Int] = arbitrary[A => Int]
+  def isSorted[A](l: List[A]): Boolean =
+    true  // TODO delegate to List
 }

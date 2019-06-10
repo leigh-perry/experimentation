@@ -1,7 +1,9 @@
 package tech.gentypes
 
+import cats.syntax.eq._
+import cats.syntax.show._
 import org.scalacheck.Arbitrary.arbitrary
-import org.scalacheck.{Cogen, Gen, Prop, Test}
+import org.scalacheck.{Cogen, Gen, Prop}
 import support.TestSupport
 
 import scala.util.Random
@@ -90,26 +92,26 @@ object PolyProp2
 
     ////
 
-    def genFrom(t: TypeWith[Testing]): Gen[TypedPipe[t.Type]] =
+    def genFrom(t: TypeWith[Testing]): Gen[Coll[t.Type]] =
       for {
         n <- Gen.chooseNum(0, 10)
         lst <- Gen.listOfN(n, t.evidence.gen)
-      } yield TypedPipe(lst)
+      } yield Coll(lst)
 
-    def genFilter(t: TypeWith[Testing]): Gen[TypedPipe[t.Type]] =
+    def genFilter(t: TypeWith[Testing]): Gen[Coll[t.Type]] =
       for {
-        pipe <- genFrom(t)
+        coll <- genFrom(t)
         predicate <- Gen.function1(arbitrary[Boolean])(t.evidence.cogen)
-      } yield pipe.filter(predicate)
+      } yield coll.filter(predicate)
 
-    def genMap(tB: TypeWith[Testing]): Gen[TypedPipe[tB.Type]] =
+    def genMap(tB: TypeWith[Testing]): Gen[Coll[tB.Type]] =
       for {
         tA <- genType
-        pipe <- genPipe(tA)
+        coll <- genColl(tA)
         f <- Gen.function1(tB.evidence.gen)(tA.evidence.cogen)
-      } yield pipe.map(f)
+      } yield coll.map(f)
 
-    def genPipe(t: TypeWith[Testing]): Gen[TypedPipe[t.Type]] =
+    def genColl(t: TypeWith[Testing]): Gen[Coll[t.Type]] =
       Gen.delay(
         Gen.oneOf(
           genFrom(t),
@@ -123,27 +125,27 @@ object PolyProp2
     Prop.forAll(
       for {
         t <- genType
-        p <- genPipe(t)
+        p <- genColl(t)
       } yield p
     ) {
       tp =>
-        println(dump(tp))
-        tp.shouldSatisfy(_.length >= 0)
+        println(tp.show)
+        tp === tp.reverse.reverse
     }.check
 
     ////
 
-    def genFlatMap(tB: TypeWith[Testing]): Gen[TypedPipe[tB.Type]] =
+    def genFlatMap(tB: TypeWith[Testing]): Gen[Coll[tB.Type]] =
       for {
         tA <- genType
-        pipe <- genPipe2(tA)
+        coll <- genColl2(tA)
         f <- Gen.function1(tB.evidence.gen)(tA.evidence.cogen)
-      } yield pipe.flatMap(
+      } yield coll.flatMap(
         a =>
-          TypedPipe(List.fill(5)(f(a)))
+          Coll(List.fill(2)(f(a)))
       )
 
-    def genPipe2(t: TypeWith[Testing]): Gen[TypedPipe[t.Type]] =
+    def genColl2(t: TypeWith[Testing]): Gen[Coll[t.Type]] =
       Gen.delay(
         Gen.oneOf(
           genFrom(t),
@@ -158,25 +160,14 @@ object PolyProp2
     Prop.forAll(
       for {
         t <- genType
-        p <- genPipe2(t)
+        p <- genColl2(t)
       } yield p
     ) {
       tp =>
-        println(dump(tp))
-        tp.shouldSatisfy(_.length >= 0)
+        println(tp.show)
+        tp === tp.reverse.reverse
     }.check
 
   }
-
-  ////
-
-  def dump[A](tp: TypedPipe[A]): String =
-    if (tp.length == 0) {
-      "[]"
-    } else {
-      tp.list
-        .map(_.toString)
-        .mkString(s"${tp.list.head.getClass.getSimpleName}: [", ", ", "]")
-    }
 
 }

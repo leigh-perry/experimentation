@@ -1,5 +1,7 @@
 package tech.gentypes
 
+import cats.syntax.eq._
+import cats.syntax.show._
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Cogen, Gen, Prop}
 import support.TestSupport
@@ -41,36 +43,36 @@ object PolyProp4
 
     ////
 
-    def genFrom(t: TypeWith[Testing]): Gen[TypedPipe[t.Type]] =
+    def genFrom(t: TypeWith[Testing]): Gen[Coll[t.Type]] =
       for {
         n <- Gen.chooseNum(0, 10)
         lst <- Gen.listOfN(n, t.evidence.gen)
-      } yield TypedPipe(lst)
+      } yield Coll(lst)
 
-    def genFilter(t: TypeWith[Testing]): Gen[TypedPipe[t.Type]] =
+    def genFilter(t: TypeWith[Testing]): Gen[Coll[t.Type]] =
       for {
-        pipe <- genFrom(t)
+        coll <- genFrom(t)
         predicate <- Gen.function1(arbitrary[Boolean])(t.evidence.cogen)
-      } yield pipe.filter(predicate)
+      } yield coll.filter(predicate)
 
-    def genMap(tB: TypeWith[Testing]): Gen[TypedPipe[tB.Type]] =
+    def genMap(tB: TypeWith[Testing]): Gen[Coll[tB.Type]] =
       for {
         tA <- genType
-        pipe <- genPipe(tA)
+        coll <- genColl(tA)
         f <- Gen.function1(tB.evidence.gen)(tA.evidence.cogen)
-      } yield pipe.map(f)
+      } yield coll.map(f)
 
-    def genFlatMap(tB: TypeWith[Testing]): Gen[TypedPipe[tB.Type]] =
+    def genFlatMap(tB: TypeWith[Testing]): Gen[Coll[tB.Type]] =
       for {
         tA <- genType
-        pipe <- genPipe(tA)
+        coll <- genColl(tA)
         f <- Gen.function1(tB.evidence.gen)(tA.evidence.cogen)
-      } yield pipe.flatMap(
+      } yield coll.flatMap(
         a =>
-          TypedPipe(List.fill(5)(f(a)))
+          Coll(List.fill(5)(f(a)))
       )
 
-    def genPipe(t: TypeWith[Testing]): Gen[TypedPipe[t.Type]] =
+    def genColl(t: TypeWith[Testing]): Gen[Coll[t.Type]] =
       Gen.delay(
         Gen.oneOf(
           genFrom(t),
@@ -85,11 +87,11 @@ object PolyProp4
     Prop.forAll(
       for {
         t <- genType
-        p <- genPipe(t)
+        p <- genColl(t)
       } yield p
     ) {
       tp =>
-        tp.shouldBe(tp.map(identity))
+        tp === tp.map(identity)
     }.check
 
     ////
@@ -99,12 +101,12 @@ object PolyProp4
         tA <- genType
         tB <- genType
         tC <- genType
-        pA <- genPipe(tA)
+        pA <- genColl(tA)
         // fab <- Gen.function1(tB.evidence.gen)(tA.evidence.cogen)
         // fbc <- Gen.function1(tC.evidence.gen)(tB.evidence.cogen)
       } yield (tA, tB, tC, pA)
     ) {
-      case (tA: TypeWith[Testing], tB: TypeWith[Testing], tC: TypeWith[Testing], pA: TypedPipe[TypeWith[Testing]#Type]) =>
+      case (tA: TypeWith[Testing], tB: TypeWith[Testing], tC: TypeWith[Testing], pA: Coll[TypeWith[Testing]#Type]) =>
         // def associative[A, B, C](fa: F[A], fab: A => B, fbc: B => C)(implicit FC: Equal[F[C]]): Boolean =
         //  FC.equal(map(map(fa)(fab))(fbc), map(fa)(fbc compose fab))
 
@@ -114,12 +116,11 @@ object PolyProp4
         // TODO resolve this
         val fabTODO: TypeWith[Testing]#Type => tB.Type = fab.asInstanceOf[TypeWith[Testing]#Type => tB.Type]
 
-        // println(pA)
-        // println(pA.map(fabTODO))
-        // println(pA.map(fabTODO).map(fbc))
+        // println(pA.map(fabTODO).map(fbc).show)
+        // println(pA.map(fbc.compose(fabTODO)).show)
         // println("---------")
 
-        pA.map(fabTODO).map(fbc) == pA.map(fbc.compose(fabTODO))
+        pA.map(fabTODO).map(fbc) === pA.map(fbc.compose(fabTODO))
     }.check
 
   }
