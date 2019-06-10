@@ -25,13 +25,14 @@ final case class Coll[+A] private(list: List[A], lineage: List[(String, Coll[Any
 }
 
 object Coll {
-  implicit def eqColl[A]: Eq[Coll[A]] =
+
+  implicit def eq[A]: Eq[Coll[A]] =
     new Eq[Coll[A]] {
       override def eqv(x: Coll[A], y: Coll[A]): Boolean =
         x.list == y.list
     }
 
-  implicit def showColl[A]: Show[Coll[A]] =
+  implicit def show[A]: Show[Coll[A]] =
     new Show[Coll[A]] {
       override def show(t: Coll[A]): String =
         "\n" +
@@ -55,3 +56,45 @@ object Coll {
     }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+object Temp {
+
+  def isSorted[A](l: List[A]): Boolean =
+    true
+}

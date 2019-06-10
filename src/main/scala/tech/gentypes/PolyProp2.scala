@@ -4,7 +4,6 @@ import cats.syntax.eq._
 import cats.syntax.show._
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Cogen, Gen, Prop}
-import support.TestSupport
 
 import scala.util.Random
 
@@ -25,8 +24,7 @@ object TypeWith {
 
 ////
 
-object PolyProp2
-  extends TestSupport {
+object PolyProp2 {
 
   def main(args: Array[String]): Unit = {
 

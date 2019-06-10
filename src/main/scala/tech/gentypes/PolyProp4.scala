@@ -1,13 +1,10 @@
 package tech.gentypes
 
 import cats.syntax.eq._
-import cats.syntax.show._
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Cogen, Gen, Prop}
-import support.TestSupport
 
-object PolyProp4
-  extends TestSupport {
+object PolyProp4 {
 
   def main(args: Array[String]): Unit = {
 
@@ -116,9 +113,11 @@ object PolyProp4
         // TODO resolve this
         val fabTODO: TypeWith[Testing]#Type => tB.Type = fab.asInstanceOf[TypeWith[Testing]#Type => tB.Type]
 
-        // println(pA.map(fabTODO).map(fbc).show)
-        // println(pA.map(fbc.compose(fabTODO)).show)
-        // println("---------")
+        //import cats.syntax.show._
+        //
+        //println(pA.map(fabTODO).map(fbc).show)
+        //println(pA.map(fbc.compose(fabTODO)).show)
+        //println("---------")
 
         pA.map(fabTODO).map(fbc) === pA.map(fbc.compose(fabTODO))
     }.check

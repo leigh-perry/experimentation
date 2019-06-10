@@ -6,8 +6,7 @@ import org.scalacheck.{Cogen, Gen, Prop}
 import support.TestSupport
 import tech.gentypes.Temp.isSorted
 
-object PolyProp3
-  extends TestSupport {
+object PolyProp3 {
 
   def main(args: Array[String]): Unit = {
 
@@ -54,7 +53,7 @@ object PolyProp3
     ) {
       tp =>
         println(tp.show)
-        tp.list.shouldSatisfy(isSorted)
+        isSorted(tp.list)
     }.check
 
   }
