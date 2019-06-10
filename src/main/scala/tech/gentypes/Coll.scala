@@ -11,8 +11,8 @@ final case class Coll[+A] private(list: List[A], lineage: List[(String, Coll[Any
   def flatMap[B](f: A => Coll[B]): Coll[B] =
     Coll(list.flatMap(f andThen (_.list)), ("flatMap", this) :: lineage)
 
-  def filter(p: A => Boolean): Coll[A] =
-    Coll(list.filter(p), ("filter", this) :: lineage)
+  def filter(c: A => Boolean): Coll[A] =
+    Coll(list.filter(c), ("filter", this) :: lineage)
 
   def distinct =
     Coll(list.distinct, ("distinct", this) :: lineage)

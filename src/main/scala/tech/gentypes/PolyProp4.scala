@@ -16,9 +16,6 @@ object PolyProp4 {
 
     ////
 
-    //    implicit def arbitraryGen[A](implicit arb: Arbitrary[A]): Gen[A] =
-    //      arb.arbitrary
-
     implicit val genUnit = arbitrary[Unit]
     implicit val genBool = arbitrary[Boolean]
     implicit val genByte = arbitrary[Byte]
@@ -84,8 +81,8 @@ object PolyProp4 {
     Prop.forAll(
       for {
         t <- genType
-        p <- genColl(t)
-      } yield p
+        c <- genColl(t)
+      } yield c
     ) {
       c =>
         c === c.map(identity)
@@ -98,28 +95,24 @@ object PolyProp4 {
         tA <- genType
         tB <- genType
         tC <- genType
-        pA <- genColl(tA)
+        // cA <- genColl(tA)
         // fab <- Gen.function1(tB.evidence.gen)(tA.evidence.cogen)
         // fbc <- Gen.function1(tC.evidence.gen)(tB.evidence.cogen)
-      } yield (tA, tB, tC, pA)
+      } yield (tA, tB, tC)
     ) {
-      case (tA: TypeWith[Testing], tB: TypeWith[Testing], tC: TypeWith[Testing], pA: Coll[TypeWith[Testing]#Type]) =>
-        // def associative[A, B, C](fa: F[A], fab: A => B, fbc: B => C)(implicit FC: Equal[F[C]]): Boolean =
-        //  FC.equal(map(map(fa)(fab))(fbc), map(fa)(fbc compose fab))
+      case (tA: TypeWith[Testing], tB: TypeWith[Testing], tC: TypeWith[Testing]) =>
 
+        val cA: Coll[tA.Type] = genColl(tA).sample.get
         val fab: tA.Type => tB.Type = Gen.function1(tB.evidence.gen)(tA.evidence.cogen).sample.get
         val fbc: tB.Type => tC.Type = Gen.function1(tC.evidence.gen)(tB.evidence.cogen).sample.get
 
-        // TODO resolve this
-        val fabTODO: TypeWith[Testing]#Type => tB.Type = fab.asInstanceOf[TypeWith[Testing]#Type => tB.Type]
-
-        //import cats.syntax.show._
+        // import cats.syntax.show._
         //
-        //println(pA.map(fabTODO).map(fbc).show)
-        //println(pA.map(fbc.compose(fabTODO)).show)
-        //println("---------")
+        // println(cA.map(fab).map(fbc).show)
+        // println(cA.map(fbc.compose(fab)).show)
+        // println("---------")
 
-        pA.map(fabTODO).map(fbc) === pA.map(fbc.compose(fabTODO))
+        cA.map(fab).map(fbc) === cA.map(fbc.compose(fab))
     }.check
 
   }

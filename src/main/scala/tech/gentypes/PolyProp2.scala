@@ -123,8 +123,8 @@ object PolyProp2 {
     Prop.forAll(
       for {
         t <- genType
-        p <- genColl(t)
-      } yield p
+        c <- genColl(t)
+      } yield c
     ) {
       c =>
         println(c.show)
@@ -158,8 +158,8 @@ object PolyProp2 {
     Prop.forAll(
       for {
         t <- genType
-        p <- genColl2(t)
-      } yield p
+        c <- genColl2(t)
+      } yield c
     ) {
       c =>
         println(c.show)
