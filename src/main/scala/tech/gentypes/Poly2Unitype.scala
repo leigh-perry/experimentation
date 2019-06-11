@@ -2,17 +2,15 @@ package tech.gentypes
 
 import cats.instances.int._
 import cats.syntax.eq._
+import cats.syntax.show._
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Arbitrary, Cogen, Gen, Prop}
 
-import scala.collection.immutable.List
-
 object Poly2Unitype {
 
-  val genList: Gen[List[Int]] =
-    Gen.listOf(arbitrary[Int])
-
   def main(args: Array[String]): Unit = {
+
+    // tests for Coll
 
     def genFrom[A](count: Gen[Int], g: Gen[A]): Gen[Coll[A]] =
       for {
@@ -20,56 +18,62 @@ object Poly2Unitype {
         l <- Gen.listOfN(n, g)
       } yield Coll.of(l)
 
-    def genFilter[A](gcoll: Gen[Coll[A]], gp: Gen[A => Boolean]): Gen[Coll[A]] =
+    def genFilter[A](gColl: Gen[Coll[A]], gPred: Gen[A => Boolean]): Gen[Coll[A]] =
       for {
-        coll <- gcoll
-        predicate <- gp
+        coll <- gColl
+        predicate <- gPred
       } yield coll.filter(predicate)
 
-    def genMap[A, B](gcoll: Gen[Coll[A]], gf: Gen[A => B]): Gen[Coll[B]] =
+    def genDistinct[A](gColl: Gen[Coll[A]]): Gen[Coll[A]] =
+      gColl.map(_.distinct)
+
+    def genMap[A, B](gColl: Gen[Coll[A]], gf: Gen[A => B]): Gen[Coll[B]] =
       for {
-        coll <- gcoll
+        coll <- gColl
         f <- gf
       } yield coll.map(f)
 
     ////
 
-    Prop.forAll(
-      genMap(
-        gcoll = genFrom(Gen.const(10), arbitrary[Int]),
-        gf = Gen.function1(arbitrary[Int])(implicitly[Cogen[Int]])
-      )
-    ) {
-      c =>
-        c.length === 10
-    }.check
-
-    ////
-
-    def genDistinct[A](gcoll: Gen[Coll[A]]): Gen[Coll[A]] =
-      gcoll.map(_.distinct)
-
-    def genColl[A: Arbitrary : Cogen](count: Gen[Int], g: Gen[A]): Gen[Coll[A]] = {
-      val gp: Gen[A => Boolean] = arbitrary[A => Boolean]
-      val gf: Gen[A => A] = arbitrary[A => A]
-
-      lazy val self: Gen[Coll[A]] =
-        Gen.delay(
-          Gen.oneOf(
-            genFrom(count, g),
-            genFilter(self, gp),
-            genMap(self, gf),
-            genDistinct(self),
-          )
+    if (false) {
+      Prop.forAll(
+        genMap(
+          gColl = genFrom(Gen.const(10), arbitrary[Int]),
+          gf = arbitrary[Int => Long]
         )
-      self
+      ) {
+        c =>
+          //println(c.list)
+          c.length === 10
+      }.check
     }
 
     ////
 
-    Prop.forAll(genColl(Gen.const(10), arbitrary[Int])) {
-      c =>
-        c.length <= 10
-    }.check
+    if (false) {
+
+      // generate multiple levels of map, filter etc
+
+      def genColl[A: Arbitrary : Cogen](count: Gen[Int], g: Gen[A]): Gen[Coll[A]] = {
+        lazy val self: Gen[Coll[A]] =
+          Gen.delay(
+            Gen.oneOf(
+              genFrom(count, g),
+              genFilter(self, arbitrary[A => Boolean]),
+              genMap(self, arbitrary[A => A]),
+              genDistinct(self),
+            )
+          )
+        self
+      }
+
+      ////
+
+      Prop.forAll(genColl(Gen.const(10), arbitrary[Int])) {
+        c =>
+          println(c.show)
+          c.length <= 10
+      }.check
+    }
   }
 }

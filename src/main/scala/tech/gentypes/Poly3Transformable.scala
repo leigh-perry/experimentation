@@ -32,15 +32,16 @@ object Poly3Transformable {
     // Generating types
     ////////////////////////////////////////////////////////////////////////////////
 
-    val t0: TypeWith[Ordering] = TypeWith[Int, Ordering]
+    // we don't know what tIntOrdering.Type is, but we have an Ordering[t.Type]
+    val tIntOrdering: TypeWith[Ordering] = TypeWith[Int, Ordering]
 
-    // we don't know what t0.Type is, but we have an Ordering[t.Type]
-    val o: Ordering[t0.Type] = t0.evidence
+    // can retrieve Ordering
+    val orderingEv: Ordering[tIntOrdering.Type] = tIntOrdering.evidence
 
     // similarly for Gen
     implicit val stringGen = arbitrary[String]
-    val t1: TypeWith[Gen] = TypeWith[String, Gen]
-    val genT1: Gen[t1.Type] = t1.evidence
+    val tStringGen: TypeWith[Gen] = TypeWith[String, Gen]
+    val genEv: Gen[tStringGen.Type] = tStringGen.evidence
 
     ////
 
@@ -58,12 +59,17 @@ object Poly3Transformable {
 
     ////
 
+    // composite Ev, any * -> *
+
+    // to support A => B, need Gen and Cogen for each type
+
     final case class Transformable[A](gen: Gen[A], cogen: Cogen[A])
     object Transformable {
       implicit def transformable[A: Gen : Cogen]: Transformable[A] =
         Transformable(implicitly, implicitly)
     }
 
+    // scalacheck exposes implicit Arbitrary, not Gen
     implicit val genUnit = arbitrary[Unit]
     implicit val genBool = arbitrary[Boolean]
     implicit val genByte = arbitrary[Byte]
