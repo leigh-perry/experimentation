@@ -1,6 +1,5 @@
 package tech.gentypes
 
-import cats.syntax.show._
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Cogen, Gen, Prop}
 import tech.gentypes.Temp.isSorted
@@ -22,7 +21,7 @@ object Poly5Ordering {
     implicit val genShort = arbitrary[Short]
     implicit val genInt = arbitrary[Int]
     implicit val genLong = arbitrary[Long]
-    implicit val genString = arbitrary[String]
+    implicit val genString = Gen.alphaNumStr // arbitrary[String]
 
     def genOrderingType: Gen[TypeWith[OrderingTransformable]] =
       Gen.oneOf(
@@ -42,7 +41,7 @@ object Poly5Ordering {
 
     ////
 
-    def genSorted(t: TypeWith[OrderingTransformable]) =
+    def genSorted(t: TypeWith[OrderingTransformable]): Gen[Coll[t.Type]] =
       genSimple(t)
         .map {
           coll =>
@@ -51,40 +50,38 @@ object Poly5Ordering {
 
     Prop.forAll {
       for {
-        t <- genOrderingType
+        t <- genOrderingType // first select a type
         coll <- genSorted(t)
       } yield coll
     } {
       c =>
+        import cats.syntax.show._
         println(c.show)
         isSorted(c.list)
     }.check
 
     ////
 
+    // ... can mix `OrderingTransformable` and `Transformable`
     // ...generate "sorted" Coll for a type that doesn't support Ordering
 
-    final case class Foo()
-
-    def genPseudosorted(t: TypeWith[OrderingTransformable]): Gen[Coll[t.Type]] =
-      for {
-        tA <- genOrderingType
-        coll <- genSorted(tA)
-        f <- Gen.function1(t.evidence.gen)(tA.evidence.cogen)
-      } yield coll.map(f)
-
+    // def genPseudosorted(t: TypeWith[Transformable]): Gen[Coll[t.Type]] =
+    //   for {
+    //     tA <- genOrderingType
+    //     coll <- genSorted(tA)
+    //     f <- Gen.function1(t.evidence.gen)(tA.evidence.cogen)
+    //   } yield coll.map(f)
+    //
+    // final case class Foo()
+    //
     // implicit val genFoo = ???
     //
     // val tFoo = TypeWith[Foo, OrderingTransformable]
     //
     // Prop.forAll(genPseudosorted(tFoo)) {
     //   c =>
-    //     true // some test here
+    //     true // some test for sorted Coll[Foo]
     // }.check
-
-    ////
-
-    // ... can mix `OrderingTransformable` and `Transformable`
 
   }
 

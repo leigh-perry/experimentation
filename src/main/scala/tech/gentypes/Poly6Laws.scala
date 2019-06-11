@@ -45,28 +45,28 @@ object Poly6Laws {
 
     def genFilter(t: TypeWith[Transformable]): Gen[Coll[t.Type]] =
       for {
-        coll <- genColl(t)
+        coll <- genMultilevel(t)
         predicate <- Gen.function1(arbitrary[Boolean])(t.evidence.cogen)
       } yield coll.filter(predicate)
 
     def genMap(tB: TypeWith[Transformable]): Gen[Coll[tB.Type]] =
       for {
-        tA <- genType
-        coll <- genColl(tA)
+        tA <- genType // first select a type
+        coll <- genMultilevel(tA)
         f <- Gen.function1(tB.evidence.gen)(tA.evidence.cogen)
       } yield coll.map(f)
 
     def genFlatMap(tB: TypeWith[Transformable]): Gen[Coll[tB.Type]] =
       for {
-        tA <- genType
-        coll <- genColl(tA)
+        tA <- genType // first select a type
+        coll <- genMultilevel(tA)
         f <- Gen.function1(tB.evidence.gen)(tA.evidence.cogen)
       } yield coll.flatMap(
         a =>
           Coll.of(List.fill(5)(f(a)))
       )
 
-    def genColl(t: TypeWith[Transformable]): Gen[Coll[t.Type]] =
+    def genMultilevel(t: TypeWith[Transformable]): Gen[Coll[t.Type]] =
       Gen.delay(
         Gen.oneOf(
           genSimple(t),
@@ -78,10 +78,11 @@ object Poly6Laws {
 
     ////
 
+    // functor identity law
     Prop.forAll(
       for {
-        t <- genType
-        c <- genColl(t)
+        t <- genType // first select a type
+        c <- genMultilevel(t)
       } yield c
     ) {
       c =>
@@ -90,24 +91,25 @@ object Poly6Laws {
 
     ////
 
+    // functor associative law:
+    //    F(fbc) ∘ F(fab)) = F(fbc ∘ fab)
     Prop.forAll(
       for {
-        tA <- genType
-        tB <- genType
-        tC <- genType
-        // cA <- genColl(tA)
+        tA <- genType // first select a type A
+        tB <- genType // first select a type B
+        tC <- genType // first select a type C
+        // cA <- genMultilevel(tA)
         // fab <- Gen.function1(tB.evidence.gen)(tA.evidence.cogen)
         // fbc <- Gen.function1(tC.evidence.gen)(tB.evidence.cogen)
       } yield (tA, tB, tC)
     ) {
       case (tA: TypeWith[Transformable], tB: TypeWith[Transformable], tC: TypeWith[Transformable]) =>
 
-        val cA: Coll[tA.Type] = genColl(tA).sample.get
+        val cA: Coll[tA.Type] = genMultilevel(tA).sample.get
         val fab: tA.Type => tB.Type = Gen.function1(tB.evidence.gen)(tA.evidence.cogen).sample.get
         val fbc: tB.Type => tC.Type = Gen.function1(tC.evidence.gen)(tB.evidence.cogen).sample.get
 
         // import cats.syntax.show._
-        //
         // println(cA.map(fab).map(fbc).show)
         // println(cA.map(fbc.compose(fab)).show)
         // println("---------")

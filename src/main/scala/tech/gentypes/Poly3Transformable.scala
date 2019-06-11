@@ -114,7 +114,7 @@ object Poly3Transformable {
 
     def genMap(tB: TypeWith[Transformable]): Gen[Coll[tB.Type]] =
       for {
-        tA <- genType
+        tA <- genType // first select a type
         coll <- genMultilevel(tA)
         f <- Gen.function1(tB.evidence.gen)(tA.evidence.cogen)
       } yield coll.map(f)
@@ -135,7 +135,7 @@ object Poly3Transformable {
 
     Prop.forAll(
       for {
-        t <- genType
+        t <- genType // first select a type
         c <- genMultilevel(t)
       } yield c
     ) {
