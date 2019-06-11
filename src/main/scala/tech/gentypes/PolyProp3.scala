@@ -3,7 +3,6 @@ package tech.gentypes
 import cats.syntax.show._
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Cogen, Gen, Prop}
-import support.TestSupport
 import tech.gentypes.Temp.isSorted
 
 object PolyProp3 {
@@ -38,8 +37,8 @@ object PolyProp3 {
     def genFrom(t: TypeWith[OrderedTesting]): Gen[Coll[t.Type]] =
       for {
         n <- Gen.chooseNum(0, 10)
-        lst <- Gen.listOfN(n, t.evidence.gen)
-      } yield Coll(lst)
+        l <- Gen.listOfN(n, t.evidence.gen)
+      } yield Coll.of(l)
 
     ////
 
@@ -48,7 +47,7 @@ object PolyProp3 {
         t0 <- genType
         coll <- genFrom(t0)
         ordering = t0.evidence.ordering
-        c = Coll(coll.list.sorted(ordering))
+        c = Coll.of(coll.list.sorted(ordering))
       } yield c
     ) {
       c =>

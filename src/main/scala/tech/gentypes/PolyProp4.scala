@@ -40,8 +40,8 @@ object PolyProp4 {
     def genFrom(t: TypeWith[Testing]): Gen[Coll[t.Type]] =
       for {
         n <- Gen.chooseNum(0, 10)
-        lst <- Gen.listOfN(n, t.evidence.gen)
-      } yield Coll(lst)
+        l <- Gen.listOfN(n, t.evidence.gen)
+      } yield Coll.of(l)
 
     def genFilter(t: TypeWith[Testing]): Gen[Coll[t.Type]] =
       for {
@@ -63,7 +63,7 @@ object PolyProp4 {
         f <- Gen.function1(tB.evidence.gen)(tA.evidence.cogen)
       } yield coll.flatMap(
         a =>
-          Coll(List.fill(5)(f(a)))
+          Coll.of(List.fill(5)(f(a)))
       )
 
     def genColl(t: TypeWith[Testing]): Gen[Coll[t.Type]] =

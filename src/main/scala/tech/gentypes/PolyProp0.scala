@@ -26,8 +26,8 @@ object PolyProp0 {
     def genFrom[A](count: Gen[Int], g: Gen[A]): Gen[Coll[A]] =
       for {
         n <- count
-        lst <- Gen.listOfN(n, g)
-      } yield Coll(lst)
+        l <- Gen.listOfN(n, g)
+      } yield Coll.of(l)
 
     ////////////////////////////////////////////////////////////////////////////////
     // Generating functions

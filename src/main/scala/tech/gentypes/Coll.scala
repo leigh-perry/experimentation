@@ -4,7 +4,7 @@ import cats.{Eq, Show}
 
 import scala.collection.immutable.List
 
-final case class Coll[+A] private(list: List[A], lineage: List[(String, Coll[Any])] = Nil) {
+final case class Coll[+A] private(list: List[A], lineage: List[(String, Coll[Any])]) {
   def map[B](f: A => B): Coll[B] =
     Coll(list.map(f), ("map", this) :: lineage)
 
@@ -25,6 +25,8 @@ final case class Coll[+A] private(list: List[A], lineage: List[(String, Coll[Any
 }
 
 object Coll {
+  def of[A](l: List[A]) =
+    Coll(l, Nil)
 
   implicit def eq[A]: Eq[Coll[A]] =
     new Eq[Coll[A]] {
@@ -34,63 +36,31 @@ object Coll {
 
   implicit def show[A]: Show[Coll[A]] =
     new Show[Coll[A]] {
-      override def show(t: Coll[A]): String =
-        "\n" +
-          t.lineage.reverse.zipWithIndex
-            .foldRight(dumpList(t.list)) {
-              case (((op: String, a: Coll[Any]), i: Int), b: String) =>
-                s"""
-                   |$b
-                   |${"  " * (t.lineage.length - i)}$op: ${dumpList(a.list)}
-                   |""".stripMargin.trim
-            }
-    }
+      override def show(c: Coll[A]): String = {
+        val lineage = c.lineage.reverse
+        val ops = "init" :: lineage.map(_._1)
+        val lists = lineage.map(_._2.list) :+ c.list
+        ops.zip(lists)
+          .zipWithIndex
+          .foldLeft("") {
+            case (b: String, ((op: String, l: List[Any]), i: Int)) =>
+              s"""
+                 |$b
+                 |${"  " * i}$op: ${dumpList(l)}
+                 |""".stripMargin.trim
+          }
+      }
 
-  def dumpList[A](list: List[Any]): String =
-    if (list.length == 0) {
-      "[]"
-    } else {
-      list
-        .map(_.toString)
-        .mkString(s"${list.head.getClass.getSimpleName}: [", ", ", "]")
+      def dumpList[A](list: List[Any]): String =
+        if (list.length == 0) {
+          "[]"
+        } else {
+          list
+            .map(_.toString)
+            .mkString(s"${list.head.getClass.getSimpleName}: [", ", ", "]")
+        }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 object Temp {

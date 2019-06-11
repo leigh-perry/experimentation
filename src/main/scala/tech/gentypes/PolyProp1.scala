@@ -3,7 +3,7 @@ package tech.gentypes
 import cats.instances.int._
 import cats.syntax.eq._
 import org.scalacheck.Arbitrary.arbitrary
-import org.scalacheck.{Arbitrary, Cogen, Gen, Prop, Test}
+import org.scalacheck.{Arbitrary, Cogen, Gen, Prop}
 
 import scala.collection.immutable.List
 
@@ -17,8 +17,8 @@ object PolyProp1 {
     def genFrom[A](count: Gen[Int], g: Gen[A]): Gen[Coll[A]] =
       for {
         n <- count
-        lst <- Gen.listOfN(n, g)
-      } yield Coll(lst)
+        l <- Gen.listOfN(n, g)
+      } yield Coll.of(l)
 
     def genFilter[A](gcoll: Gen[Coll[A]], gp: Gen[A => Boolean]): Gen[Coll[A]] =
       for {
