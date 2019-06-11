@@ -66,26 +66,21 @@ object Poly5Ordering {
 
     final case class Foo()
 
-    def genPseudosorted(t: TypeWith[OrderingTransformable]) =
+    def genPseudosorted(t: TypeWith[OrderingTransformable]): Gen[Coll[t.Type]] =
       for {
         tA <- genOrderingType
         coll <- genSorted(tA)
         f <- Gen.function1(t.evidence.gen)(tA.evidence.cogen)
       } yield coll.map(f)
 
-    implicit val genFoo = ??? // arbitrary[Foo]
-
-    val tFoo = TypeWith[Foo, OrderingTransformable]
-
-    Prop.forAll {
-      for {
-        coll <- genPseudosorted(tFoo)
-      } yield coll
-    } {
-      c =>
-        println(c.show)
-        isSorted(c.list)
-    }.check
+    // implicit val genFoo = ???
+    //
+    // val tFoo = TypeWith[Foo, OrderingTransformable]
+    //
+    // Prop.forAll(genPseudosorted(tFoo)) {
+    //   c =>
+    //     true // some test here
+    // }.check
 
     ////
 
