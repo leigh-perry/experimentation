@@ -37,7 +37,7 @@ object Poly6Laws {
 
     ////
 
-    def genFrom(t: TypeWith[Transformable]): Gen[Coll[t.Type]] =
+    def genSimple(t: TypeWith[Transformable]): Gen[Coll[t.Type]] =
       for {
         n <- Gen.chooseNum(0, 10)
         l <- Gen.listOfN(n, t.evidence.gen)
@@ -69,7 +69,7 @@ object Poly6Laws {
     def genColl(t: TypeWith[Transformable]): Gen[Coll[t.Type]] =
       Gen.delay(
         Gen.oneOf(
-          genFrom(t),
+          genSimple(t),
           genFilter(t),
           genMap(t),
           genFlatMap(t),

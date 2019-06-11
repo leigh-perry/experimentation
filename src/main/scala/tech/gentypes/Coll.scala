@@ -31,7 +31,7 @@ object Coll {
   implicit def eq[A]: Eq[Coll[A]] =
     new Eq[Coll[A]] {
       override def eqv(x: Coll[A], y: Coll[A]): Boolean =
-        x.list == y.list
+        x.list == y.list  // exclude lineage
     }
 
   implicit def show[A]: Show[Coll[A]] =

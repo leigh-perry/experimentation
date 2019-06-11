@@ -41,7 +41,7 @@ object Poly4TransformableFlatMap {
 
     ////
 
-    def genFrom(t: TypeWith[Transformable]): Gen[Coll[t.Type]] =
+    def genSimple(t: TypeWith[Transformable]): Gen[Coll[t.Type]] =
       for {
         n <- Gen.chooseNum(0, 10)
         l <- Gen.listOfN(n, t.evidence.gen)
@@ -80,7 +80,7 @@ object Poly4TransformableFlatMap {
     def genColl(t: TypeWith[Transformable]): Gen[Coll[t.Type]] =
       Gen.delay(
         Gen.oneOf(
-          genFrom(t),
+          genSimple(t),
           genFilter(t),
           genDistinct(t),
           genMap(t),

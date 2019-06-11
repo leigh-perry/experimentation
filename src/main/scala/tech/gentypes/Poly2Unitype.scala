@@ -12,7 +12,7 @@ object Poly2Unitype {
 
     // tests for Coll
 
-    def genFrom[A](count: Gen[Int], g: Gen[A]): Gen[Coll[A]] =
+    def genSimple[A](count: Gen[Int], g: Gen[A]): Gen[Coll[A]] =
       for {
         n <- count
         l <- Gen.listOfN(n, g)
@@ -38,7 +38,7 @@ object Poly2Unitype {
     if (false) {
       Prop.forAll(
         genMap(
-          gColl = genFrom(Gen.const(10), arbitrary[Int]),
+          gColl = genSimple(Gen.const(10), arbitrary[Int]),
           gf = arbitrary[Int => Long]
         )
       ) {
@@ -54,11 +54,11 @@ object Poly2Unitype {
 
       // generate multiple levels of map, filter etc
 
-      def genColl[A: Arbitrary : Cogen](count: Gen[Int], g: Gen[A]): Gen[Coll[A]] = {
+      def genMultilevel[A: Arbitrary : Cogen](count: Gen[Int], g: Gen[A]): Gen[Coll[A]] = {
         lazy val self: Gen[Coll[A]] =
           Gen.delay(
             Gen.oneOf(
-              genFrom(count, g),
+              genSimple(count, g),
               genFilter(self, arbitrary[A => Boolean]),
               genMap(self, arbitrary[A => A]),
               genDistinct(self),
@@ -69,7 +69,7 @@ object Poly2Unitype {
 
       ////
 
-      Prop.forAll(genColl(Gen.const(10), arbitrary[Int])) {
+      Prop.forAll(genMultilevel(Gen.const(10), arbitrary[Int])) {
         c =>
           println(c.show)
           c.length <= 10

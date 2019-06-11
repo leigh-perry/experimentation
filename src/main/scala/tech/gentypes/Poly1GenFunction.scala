@@ -21,7 +21,7 @@ object Poly1GenFunction {
 
     ////
 
-    def genFrom[A](count: Gen[Int], genA: Gen[A]): Gen[Coll[A]] =
+    def genSimple[A](count: Gen[Int], genA: Gen[A]): Gen[Coll[A]] =
       for {
         n <- count
         l <- Gen.listOfN(n, genA)
@@ -139,7 +139,7 @@ object Poly1GenFunction {
     if (false) {
       Prop.forAll(
         genFilter(
-          gColl = genFrom(Gen.choose(0, 20), arbitrary[String]),
+          gColl = genSimple(Gen.choose(0, 20), arbitrary[String]),
           gPred = Gen.const((_: String) => false)
         )
       ) {

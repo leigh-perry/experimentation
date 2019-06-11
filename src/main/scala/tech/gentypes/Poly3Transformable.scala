@@ -1,7 +1,6 @@
 package tech.gentypes
 
 import cats.syntax.eq._
-import cats.syntax.show._
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Cogen, Gen, Prop}
 
@@ -96,7 +95,7 @@ object Poly3Transformable {
 
     ////
 
-    def genFrom(t: TypeWith[Transformable]): Gen[Coll[t.Type]] =
+    def genSimple(t: TypeWith[Transformable]): Gen[Coll[t.Type]] =
       for {
         n <- Gen.chooseNum(0, 10)
         l <- Gen.listOfN(n, t.evidence.gen)
@@ -104,28 +103,28 @@ object Poly3Transformable {
 
     def genFilter(t: TypeWith[Transformable]): Gen[Coll[t.Type]] =
       for {
-        coll <- genColl(t)
+        coll <- genMultilevel(t)
         predicate <- Gen.function1(arbitrary[Boolean])(t.evidence.cogen)
       } yield coll.filter(predicate)
 
     def genDistinct[A](t: TypeWith[Transformable]): Gen[Coll[t.Type]] =
       for {
-        coll <- genColl(t)
+        coll <- genMultilevel(t)
       } yield coll.distinct
 
     def genMap(tB: TypeWith[Transformable]): Gen[Coll[tB.Type]] =
       for {
         tA <- genType
-        coll <- genColl(tA)
+        coll <- genMultilevel(tA)
         f <- Gen.function1(tB.evidence.gen)(tA.evidence.cogen)
       } yield coll.map(f)
 
     // ...specifies target type tB, genMap selects a source type tA to map to tB
 
-    def genColl(t: TypeWith[Transformable]): Gen[Coll[t.Type]] =
+    def genMultilevel(t: TypeWith[Transformable]): Gen[Coll[t.Type]] =
       Gen.delay(
         Gen.oneOf(
-          genFrom(t),
+          genSimple(t),
           genFilter(t),
           genDistinct(t),
           genMap(t),
@@ -137,11 +136,12 @@ object Poly3Transformable {
     Prop.forAll(
       for {
         t <- genType
-        c <- genColl(t)
+        c <- genMultilevel(t)
       } yield c
     ) {
       c =>
-        println(c.show)
+        //import cats.syntax.show._
+        //println(c.show)
         c === c.reverse.reverse
     }.check
 

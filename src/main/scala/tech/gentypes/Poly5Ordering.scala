@@ -34,7 +34,7 @@ object Poly5Ordering {
         TypeWith[String, OrderingTransformable],
       )
 
-    def genFrom(t: TypeWith[OrderingTransformable]): Gen[Coll[t.Type]] =
+    def genSimple(t: TypeWith[OrderingTransformable]): Gen[Coll[t.Type]] =
       for {
         n <- Gen.chooseNum(0, 10)
         l <- Gen.listOfN(n, t.evidence.gen)
@@ -43,7 +43,7 @@ object Poly5Ordering {
     ////
 
     def genSorted(t: TypeWith[OrderingTransformable]) =
-      genFrom(t)
+      genSimple(t)
         .map {
           coll =>
             Coll.of(coll.list.sorted(t.evidence.ordering))
