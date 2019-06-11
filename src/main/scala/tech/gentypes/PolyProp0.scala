@@ -14,14 +14,12 @@ object PolyProp0 {
     Prop.forAll {
       Gen.listOf(arbitrary[Int])
     } {
-      l: List[Int] =>
-        val mapped = l.map(_ + 12)
-        mapped.sum === l.sum + mapped.length * 12
+      list: List[Int] =>
+        val mapped = list.map(_ + 12)
+        mapped.sum === list.sum + mapped.length * 12
     }.check
 
-    ////////////////////////////////////////////////////////////////////////////////
-    // Generators
-    ////////////////////////////////////////////////////////////////////////////////
+    ////
 
     def genFrom[A](count: Gen[Int], g: Gen[A]): Gen[Coll[A]] =
       for {
@@ -29,9 +27,9 @@ object PolyProp0 {
         lst <- Gen.listOfN(n, g)
       } yield Coll(lst)
 
-    ////////////////////////////////////////////////////////////////////////////////
+    ////
+
     // Generating functions
-    ////////////////////////////////////////////////////////////////////////////////
 
     // — Gen[A] generates A values
     // — Cogen[A] consumes A values
