@@ -5,14 +5,14 @@ import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Cogen, Gen, Prop}
 import tech.gentypes.Temp.isSorted
 
-object PolyProp3 {
+object Poly5Ordered {
 
   def main(args: Array[String]): Unit = {
 
-    case class OrderedTesting[A](gen: Gen[A], cogen: Cogen[A], ordering: Ordering[A])
-    object OrderedTesting {
-      implicit def orderedOrderedTesting[A: Gen : Cogen : Ordering]: OrderedTesting[A] =
-        OrderedTesting(implicitly, implicitly, implicitly)
+    case class OrderedTransformable[A](gen: Gen[A], cogen: Cogen[A], ordering: Ordering[A])
+    object OrderedTransformable {
+      implicit def orderedTransformable[A: Gen : Cogen : Ordering]: OrderedTransformable[A] =
+        OrderedTransformable(implicitly, implicitly, implicitly)
     }
 
     ////
@@ -24,17 +24,17 @@ object PolyProp3 {
     implicit val genLong = arbitrary[Long]
     implicit val genString = arbitrary[String]
 
-    def genType: Gen[TypeWith[OrderedTesting]] =
+    def genType: Gen[TypeWith[OrderedTransformable]] =
       Gen.oneOf(
-        TypeWith[Byte, OrderedTesting],
-        TypeWith[Char, OrderedTesting],
-        TypeWith[Short, OrderedTesting],
-        TypeWith[Int, OrderedTesting],
-        TypeWith[Long, OrderedTesting],
-        TypeWith[String, OrderedTesting],
+        TypeWith[Byte, OrderedTransformable],
+        TypeWith[Char, OrderedTransformable],
+        TypeWith[Short, OrderedTransformable],
+        TypeWith[Int, OrderedTransformable],
+        TypeWith[Long, OrderedTransformable],
+        TypeWith[String, OrderedTransformable],
       )
 
-    def genFrom(t: TypeWith[OrderedTesting]): Gen[Coll[t.Type]] =
+    def genFrom(t: TypeWith[OrderedTransformable]): Gen[Coll[t.Type]] =
       for {
         n <- Gen.chooseNum(0, 10)
         l <- Gen.listOfN(n, t.evidence.gen)

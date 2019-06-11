@@ -7,7 +7,7 @@ import org.scalacheck.{Cogen, Gen, Prop}
 
 import scala.collection.immutable.List
 
-object PolyProp0 {
+object Poly1GenFunction {
 
   def main(args: Array[String]): Unit = {
 

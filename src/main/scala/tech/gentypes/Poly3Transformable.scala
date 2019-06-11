@@ -24,7 +24,7 @@ object TypeWith {
 
 ////
 
-object PolyProp2 {
+object Poly3Transformable {
 
   def main(args: Array[String]): Unit = {
 
@@ -58,10 +58,10 @@ object PolyProp2 {
 
     ////
 
-    case class Testing[A](gen: Gen[A], cogen: Cogen[A])
-    object Testing {
-      implicit def testing[A: Gen : Cogen]: Testing[A] =
-        Testing(implicitly, implicitly)
+    final case class Transformable[A](gen: Gen[A], cogen: Cogen[A])
+    object Transformable {
+      implicit def transformable[A: Gen : Cogen]: Transformable[A] =
+        Transformable(implicitly, implicitly)
     }
 
     implicit val genUnit = arbitrary[Unit]
@@ -73,47 +73,55 @@ object PolyProp2 {
     implicit val genLong = arbitrary[Long]
 
     // if we have implicit Gen, Cogen, this works
-    val testWith: TypeWith[Testing] = TypeWith[Int, Testing]
+    val testWith: TypeWith[Transformable] = TypeWith[Int, Transformable]
     val evGen: Gen[testWith.Type] = testWith.evidence.gen
-    val c: Cogen[testWith.Type] = testWith.evidence.cogen
+    val evCogen: Cogen[testWith.Type] = testWith.evidence.cogen
 
-    def genType: Gen[TypeWith[Testing]] =
+    def genType: Gen[TypeWith[Transformable]] =
       Gen.oneOf(
-        TypeWith[Unit, Testing],
-        TypeWith[Boolean, Testing],
-        TypeWith[Byte, Testing],
-        TypeWith[Char, Testing],
-        TypeWith[Short, Testing],
-        TypeWith[Int, Testing],
-        TypeWith[Long, Testing],
+        TypeWith[Unit, Transformable],
+        TypeWith[Boolean, Transformable],
+        TypeWith[Byte, Transformable],
+        TypeWith[Char, Transformable],
+        TypeWith[Short, Transformable],
+        TypeWith[Int, Transformable],
+        TypeWith[Long, Transformable],
       )
 
     ////
 
-    def genFrom(t: TypeWith[Testing]): Gen[Coll[t.Type]] =
+    def genFrom(t: TypeWith[Transformable]): Gen[Coll[t.Type]] =
       for {
         n <- Gen.chooseNum(0, 10)
         l <- Gen.listOfN(n, t.evidence.gen)
       } yield Coll.of(l)
 
-    def genFilter(t: TypeWith[Testing]): Gen[Coll[t.Type]] =
+    def genFilter(t: TypeWith[Transformable]): Gen[Coll[t.Type]] =
       for {
-        coll <- genFrom(t)
+        coll <- genColl(t)
         predicate <- Gen.function1(arbitrary[Boolean])(t.evidence.cogen)
       } yield coll.filter(predicate)
 
-    def genMap(tB: TypeWith[Testing]): Gen[Coll[tB.Type]] =
+    def genDistinct[A](t: TypeWith[Transformable]): Gen[Coll[t.Type]] =
+      for {
+        coll <- genColl(t)
+      } yield coll.distinct
+
+    def genMap(tB: TypeWith[Transformable]): Gen[Coll[tB.Type]] =
       for {
         tA <- genType
         coll <- genColl(tA)
         f <- Gen.function1(tB.evidence.gen)(tA.evidence.cogen)
       } yield coll.map(f)
 
-    def genColl(t: TypeWith[Testing]): Gen[Coll[t.Type]] =
+    // ...specifies target type tB, genMap selects a source type tA to map to tB
+
+    def genColl(t: TypeWith[Transformable]): Gen[Coll[t.Type]] =
       Gen.delay(
         Gen.oneOf(
           genFrom(t),
           genFilter(t),
+          genDistinct(t),
           genMap(t),
         )
       )
@@ -124,41 +132,6 @@ object PolyProp2 {
       for {
         t <- genType
         c <- genColl(t)
-      } yield c
-    ) {
-      c =>
-        println(c.show)
-        c === c.reverse.reverse
-    }.check
-
-    ////
-
-    def genFlatMap(tB: TypeWith[Testing]): Gen[Coll[tB.Type]] =
-      for {
-        tA <- genType
-        coll <- genColl2(tA)
-        f <- Gen.function1(tB.evidence.gen)(tA.evidence.cogen)
-      } yield coll.flatMap(
-        a =>
-          Coll.of(List.fill(2)(f(a)))
-      )
-
-    def genColl2(t: TypeWith[Testing]): Gen[Coll[t.Type]] =
-      Gen.delay(
-        Gen.oneOf(
-          genFrom(t),
-          genFilter(t),
-          genMap(t),
-          genFlatMap(t),
-        )
-      )
-
-    ////
-
-    Prop.forAll(
-      for {
-        t <- genType
-        c <- genColl2(t)
       } yield c
     ) {
       c =>

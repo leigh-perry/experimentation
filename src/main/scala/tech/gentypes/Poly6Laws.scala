@@ -4,14 +4,14 @@ import cats.syntax.eq._
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Cogen, Gen, Prop}
 
-object PolyProp4 {
+object Poly6Laws {
 
   def main(args: Array[String]): Unit = {
 
-    case class Testing[A](gen: Gen[A], cogen: Cogen[A])
-    object Testing {
-      implicit def testing[A: Gen : Cogen]: Testing[A] =
-        Testing(implicitly, implicitly)
+    case class Transformable[A](gen: Gen[A], cogen: Cogen[A])
+    object Transformable {
+      implicit def transformable[A: Gen : Cogen]: Transformable[A] =
+        Transformable(implicitly, implicitly)
     }
 
     ////
@@ -24,39 +24,39 @@ object PolyProp4 {
     implicit val genInt = arbitrary[Int]
     implicit val genLong = arbitrary[Long]
 
-    def genType: Gen[TypeWith[Testing]] =
+    def genType: Gen[TypeWith[Transformable]] =
       Gen.oneOf(
-        TypeWith[Unit, Testing],
-        TypeWith[Boolean, Testing],
-        TypeWith[Byte, Testing],
-        TypeWith[Char, Testing],
-        TypeWith[Short, Testing],
-        TypeWith[Int, Testing],
-        TypeWith[Long, Testing],
+        TypeWith[Unit, Transformable],
+        TypeWith[Boolean, Transformable],
+        TypeWith[Byte, Transformable],
+        TypeWith[Char, Transformable],
+        TypeWith[Short, Transformable],
+        TypeWith[Int, Transformable],
+        TypeWith[Long, Transformable],
       )
 
     ////
 
-    def genFrom(t: TypeWith[Testing]): Gen[Coll[t.Type]] =
+    def genFrom(t: TypeWith[Transformable]): Gen[Coll[t.Type]] =
       for {
         n <- Gen.chooseNum(0, 10)
         l <- Gen.listOfN(n, t.evidence.gen)
       } yield Coll.of(l)
 
-    def genFilter(t: TypeWith[Testing]): Gen[Coll[t.Type]] =
+    def genFilter(t: TypeWith[Transformable]): Gen[Coll[t.Type]] =
       for {
-        coll <- genFrom(t)
+        coll <- genColl(t)
         predicate <- Gen.function1(arbitrary[Boolean])(t.evidence.cogen)
       } yield coll.filter(predicate)
 
-    def genMap(tB: TypeWith[Testing]): Gen[Coll[tB.Type]] =
+    def genMap(tB: TypeWith[Transformable]): Gen[Coll[tB.Type]] =
       for {
         tA <- genType
         coll <- genColl(tA)
         f <- Gen.function1(tB.evidence.gen)(tA.evidence.cogen)
       } yield coll.map(f)
 
-    def genFlatMap(tB: TypeWith[Testing]): Gen[Coll[tB.Type]] =
+    def genFlatMap(tB: TypeWith[Transformable]): Gen[Coll[tB.Type]] =
       for {
         tA <- genType
         coll <- genColl(tA)
@@ -66,7 +66,7 @@ object PolyProp4 {
           Coll.of(List.fill(5)(f(a)))
       )
 
-    def genColl(t: TypeWith[Testing]): Gen[Coll[t.Type]] =
+    def genColl(t: TypeWith[Transformable]): Gen[Coll[t.Type]] =
       Gen.delay(
         Gen.oneOf(
           genFrom(t),
@@ -100,7 +100,7 @@ object PolyProp4 {
         // fbc <- Gen.function1(tC.evidence.gen)(tB.evidence.cogen)
       } yield (tA, tB, tC)
     ) {
-      case (tA: TypeWith[Testing], tB: TypeWith[Testing], tC: TypeWith[Testing]) =>
+      case (tA: TypeWith[Transformable], tB: TypeWith[Transformable], tC: TypeWith[Transformable]) =>
 
         val cA: Coll[tA.Type] = genColl(tA).sample.get
         val fab: tA.Type => tB.Type = Gen.function1(tB.evidence.gen)(tA.evidence.cogen).sample.get

@@ -7,7 +7,7 @@ import org.scalacheck.{Arbitrary, Cogen, Gen, Prop}
 
 import scala.collection.immutable.List
 
-object PolyProp1 {
+object Poly2Unitype {
 
   val genList: Gen[List[Int]] =
     Gen.listOf(arbitrary[Int])
@@ -46,6 +46,9 @@ object PolyProp1 {
 
     ////
 
+    def genDistinct[A](gcoll: Gen[Coll[A]]): Gen[Coll[A]] =
+      gcoll.map(_.distinct)
+
     def genColl[A: Arbitrary : Cogen](count: Gen[Int], g: Gen[A]): Gen[Coll[A]] = {
       val gp: Gen[A => Boolean] = arbitrary[A => Boolean]
       val gf: Gen[A => A] = arbitrary[A => A]
@@ -55,7 +58,8 @@ object PolyProp1 {
           Gen.oneOf(
             genFrom(count, g),
             genFilter(self, gp),
-            genMap(self, gf)
+            genMap(self, gf),
+            genDistinct(self),
           )
         )
       self
