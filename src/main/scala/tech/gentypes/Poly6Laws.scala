@@ -108,38 +108,7 @@ object Poly6Laws {
       } yield TInfo(cA, fab.asInstanceOf[TType => TType], fbc.asInstanceOf[TType => TType])
     ) {
       info =>
-        val cA = info.cA
-        val fab = info.fab
-        val fbc = info.fbc
-
-        // import cats.syntax.show._
-        // println(cA.map(fab).map(fbc).show)
-        // println(cA.map(fbc.compose(fab)).show)
-        // println("---------")
-
-        // F(fbc) ∘ F(fab) = F(fbc ∘ fab)
-        cA.map(fab).map(fbc) === cA.map(fbc.compose(fab))
-    }.check
-
-    ////
-
-    // functor associative law:
-    //    F(fbc) ∘ F(fab) = F(fbc ∘ fab)
-    Prop.forAll(
-      for {
-        tA <- genType // first select a type A
-        tB <- genType // first select a type B
-        tC <- genType // first select a type C
-        // cA <- genMultilevel(tA)
-        // fab <- Gen.function1(tB.evidence.gen)(tA.evidence.cogen)
-        // fbc <- Gen.function1(tC.evidence.gen)(tB.evidence.cogen)
-      } yield (tA, tB, tC)
-    ) {
-      case (tA: TypeWith[GenCogen], tB: TypeWith[GenCogen], tC: TypeWith[GenCogen]) =>
-
-        val cA: Coll[tA.Type] = genMultilevel(tA).sample.get
-        val fab: tA.Type => tB.Type = Gen.function1(tB.evidence.gen)(tA.evidence.cogen).sample.get
-        val fbc: tB.Type => tC.Type = Gen.function1(tC.evidence.gen)(tB.evidence.cogen).sample.get
+        val TInfo(cA, fab, fbc) = info
 
         // import cats.syntax.show._
         // println(cA.map(fab).map(fbc).show)
