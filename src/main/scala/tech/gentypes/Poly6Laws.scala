@@ -93,6 +93,38 @@ object Poly6Laws {
 
     // functor associative law:
     //    F(fbc) ∘ F(fab) = F(fbc ∘ fab)
+    type TType = TypeWith[GenCogen]#Type
+    final case class TInfo(cA: Coll[TType], fab: TType => TType, fbc: TType => TType)
+
+    Prop.forAll(
+      for {
+        tA <- genType // first select a type A
+        tB <- genType // first select a type B
+        tC <- genType // first select a type C
+        cA <- genMultilevel(tA)
+        fab <- Gen.function1(tB.evidence.gen)(tA.evidence.cogen)
+        fbc <- Gen.function1(tC.evidence.gen)(tB.evidence.cogen)
+        //   type Aux[A, Ev[_]] = TypeWith[Ev] {type Type = A}
+      } yield TInfo(cA, fab.asInstanceOf[TType => TType], fbc.asInstanceOf[TType => TType])
+    ) {
+      info =>
+        val cA = info.cA
+        val fab = info.fab
+        val fbc = info.fbc
+
+        // import cats.syntax.show._
+        // println(cA.map(fab).map(fbc).show)
+        // println(cA.map(fbc.compose(fab)).show)
+        // println("---------")
+
+        // F(fbc) ∘ F(fab) = F(fbc ∘ fab)
+        cA.map(fab).map(fbc) === cA.map(fbc.compose(fab))
+    }.check
+
+    ////
+
+    // functor associative law:
+    //    F(fbc) ∘ F(fab) = F(fbc ∘ fab)
     Prop.forAll(
       for {
         tA <- genType // first select a type A
