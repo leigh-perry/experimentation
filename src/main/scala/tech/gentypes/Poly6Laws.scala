@@ -104,7 +104,7 @@ object Poly6Laws {
         cA <- genMultilevel(tA)
         fab <- Gen.function1(tB.evidence.gen)(tA.evidence.cogen)
         fbc <- Gen.function1(tC.evidence.gen)(tB.evidence.cogen)
-      } yield TInfo(cA, fab.asInstanceOf[TType => TType], fbc.asInstanceOf[TType => TType])
+      } yield TInfo(cA, fab.asInstanceOf[TType => TType], fbc.asInstanceOf[TType => TType])  // don't @ me
     ) {
       info =>
         val TInfo(cA, fab, fbc) = info
