@@ -63,6 +63,29 @@ object Coll {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 object Temp {
 
   def isSorted[A](l: List[A]): Boolean =

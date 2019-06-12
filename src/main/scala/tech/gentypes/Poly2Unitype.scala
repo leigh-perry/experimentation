@@ -39,11 +39,11 @@ object Poly2Unitype {
       Prop.forAll(
         genMap(
           gColl = genSimple(Gen.const(10), arbitrary[Int]),
-          gf = arbitrary[Int => Long]
+          gf = arbitrary[Int => Double]
         )
       ) {
         c =>
-          //println(c.list)
+          println(c.list)
           c.length === 10
       }.check
     }

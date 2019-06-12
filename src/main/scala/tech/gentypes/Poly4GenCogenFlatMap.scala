@@ -4,14 +4,14 @@ import cats.syntax.eq._
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Cogen, Gen, Prop}
 
-object Poly4TransformableFlatMap {
+object Poly4GenCogenFlatMap {
 
   def main(args: Array[String]): Unit = {
 
-    final case class Transformable[A](gen: Gen[A], cogen: Cogen[A])
-    object Transformable {
-      implicit def transformable[A: Gen : Cogen]: Transformable[A] =
-        Transformable(implicitly, implicitly)
+    final case class GenCogen[A](gen: Gen[A], cogen: Cogen[A])
+    object GenCogen {
+      implicit def genCogen[A: Gen : Cogen]: GenCogen[A] =
+        GenCogen(implicitly, implicitly)
     }
 
     implicit val genUnit = arbitrary[Unit]
@@ -23,41 +23,41 @@ object Poly4TransformableFlatMap {
     implicit val genLong = arbitrary[Long]
 
     // if we have implicit Gen, Cogen, this works
-    val testWith: TypeWith[Transformable] = TypeWith[Int, Transformable]
+    val testWith: TypeWith[GenCogen] = TypeWith[Int, GenCogen]
     val evGen: Gen[testWith.Type] = testWith.evidence.gen
     val evCogen: Cogen[testWith.Type] = testWith.evidence.cogen
 
-    def genType: Gen[TypeWith[Transformable]] =
+    def genType: Gen[TypeWith[GenCogen]] =
       Gen.oneOf(
-        TypeWith[Unit, Transformable],
-        TypeWith[Boolean, Transformable],
-        TypeWith[Byte, Transformable],
-        TypeWith[Char, Transformable],
-        TypeWith[Short, Transformable],
-        TypeWith[Int, Transformable],
-        TypeWith[Long, Transformable],
+        TypeWith[Unit, GenCogen],
+        TypeWith[Boolean, GenCogen],
+        TypeWith[Byte, GenCogen],
+        TypeWith[Char, GenCogen],
+        TypeWith[Short, GenCogen],
+        TypeWith[Int, GenCogen],
+        TypeWith[Long, GenCogen],
       )
 
     ////
 
-    def genSimple(t: TypeWith[Transformable]): Gen[Coll[t.Type]] =
+    def genSimple(t: TypeWith[GenCogen]): Gen[Coll[t.Type]] =
       for {
         n <- Gen.chooseNum(0, 10)
         l <- Gen.listOfN(n, t.evidence.gen)
       } yield Coll.of(l)
 
-    def genFilter(t: TypeWith[Transformable]): Gen[Coll[t.Type]] =
+    def genFilter(t: TypeWith[GenCogen]): Gen[Coll[t.Type]] =
       for {
         coll <- genMultilevel(t)
         predicate <- Gen.function1(arbitrary[Boolean])(t.evidence.cogen)
       } yield coll.filter(predicate)
 
-    def genDistinct[A](t: TypeWith[Transformable]): Gen[Coll[t.Type]] =
+    def genDistinct[A](t: TypeWith[GenCogen]): Gen[Coll[t.Type]] =
       for {
         coll <- genMultilevel(t)
       } yield coll.distinct
 
-    def genMap(tB: TypeWith[Transformable]): Gen[Coll[tB.Type]] =
+    def genMap(tB: TypeWith[GenCogen]): Gen[Coll[tB.Type]] =
       for {
         tA <- genType // first select a type
         coll <- genMultilevel(tA)
@@ -66,7 +66,7 @@ object Poly4TransformableFlatMap {
 
     ////
 
-    def genFlatMap(tB: TypeWith[Transformable]): Gen[Coll[tB.Type]] =
+    def genFlatMap(tB: TypeWith[GenCogen]): Gen[Coll[tB.Type]] =
       for {
         tA <- genType // first select a type
         coll <- genMultilevel(tA)
@@ -76,7 +76,7 @@ object Poly4TransformableFlatMap {
           Coll.of(List.fill(2)(f(a)))
       )
 
-    def genMultilevel(t: TypeWith[Transformable]): Gen[Coll[t.Type]] =
+    def genMultilevel(t: TypeWith[GenCogen]): Gen[Coll[t.Type]] =
       Gen.delay(
         Gen.oneOf(
           genSimple(t),

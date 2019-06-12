@@ -8,10 +8,10 @@ object Poly5Ordering {
 
   def main(args: Array[String]): Unit = {
 
-    case class OrderingTransformable[A](gen: Gen[A], cogen: Cogen[A], ordering: Ordering[A])
-    object OrderingTransformable {
-      implicit def orderedTransformable[A: Gen : Cogen : Ordering]: OrderingTransformable[A] =
-        OrderingTransformable(implicitly, implicitly, implicitly)
+    case class OrderingGenCogen[A](gen: Gen[A], cogen: Cogen[A], ordering: Ordering[A])
+    object OrderingGenCogen {
+      implicit def orderingGenCogen[A: Gen : Cogen : Ordering]: OrderingGenCogen[A] =
+        OrderingGenCogen(implicitly, implicitly, implicitly)
     }
 
     ////
@@ -23,17 +23,17 @@ object Poly5Ordering {
     implicit val genLong = arbitrary[Long]
     implicit val genString = Gen.alphaNumStr // arbitrary[String]
 
-    def genOrderingType: Gen[TypeWith[OrderingTransformable]] =
+    def genOrderingType: Gen[TypeWith[OrderingGenCogen]] =
       Gen.oneOf(
-        TypeWith[Byte, OrderingTransformable],
-        TypeWith[Char, OrderingTransformable],
-        TypeWith[Short, OrderingTransformable],
-        TypeWith[Int, OrderingTransformable],
-        TypeWith[Long, OrderingTransformable],
-        TypeWith[String, OrderingTransformable],
+        TypeWith[Byte, OrderingGenCogen],
+        TypeWith[Char, OrderingGenCogen],
+        TypeWith[Short, OrderingGenCogen],
+        TypeWith[Int, OrderingGenCogen],
+        TypeWith[Long, OrderingGenCogen],
+        TypeWith[String, OrderingGenCogen],
       )
 
-    def genSimple(t: TypeWith[OrderingTransformable]): Gen[Coll[t.Type]] =
+    def genSimple(t: TypeWith[OrderingGenCogen]): Gen[Coll[t.Type]] =
       for {
         n <- Gen.chooseNum(0, 10)
         l <- Gen.listOfN(n, t.evidence.gen)
@@ -41,7 +41,7 @@ object Poly5Ordering {
 
     ////
 
-    def genSorted(t: TypeWith[OrderingTransformable]): Gen[Coll[t.Type]] =
+    def genSorted(t: TypeWith[OrderingGenCogen]): Gen[Coll[t.Type]] =
       genSimple(t)
         .map {
           coll =>
@@ -62,10 +62,10 @@ object Poly5Ordering {
 
     ////
 
-    // ... can mix `OrderingTransformable` and `Transformable`
+    // ... can mix `OrderingGenCogen` and `GenCogen`
     // ...generate "sorted" Coll for a type that doesn't support Ordering
 
-    // def genPseudosorted(t: TypeWith[Transformable]): Gen[Coll[t.Type]] =
+    // def genPseudosorted(t: TypeWith[GenCogen]): Gen[Coll[t.Type]] =
     //   for {
     //     tA <- genOrderingType
     //     coll <- genSorted(tA)
@@ -76,7 +76,7 @@ object Poly5Ordering {
     //
     // implicit val genFoo = ???
     //
-    // val tFoo = TypeWith[Foo, OrderingTransformable]
+    // val tFoo = TypeWith[Foo, OrderingGenCogen]
     //
     // Prop.forAll(genPseudosorted(tFoo)) {
     //   c =>

@@ -8,10 +8,10 @@ object Poly6Laws {
 
   def main(args: Array[String]): Unit = {
 
-    case class Transformable[A](gen: Gen[A], cogen: Cogen[A])
-    object Transformable {
-      implicit def transformable[A: Gen : Cogen]: Transformable[A] =
-        Transformable(implicitly, implicitly)
+    case class GenCogen[A](gen: Gen[A], cogen: Cogen[A])
+    object GenCogen {
+      implicit def genCogen[A: Gen : Cogen]: GenCogen[A] =
+        GenCogen(implicitly, implicitly)
     }
 
     ////
@@ -24,39 +24,39 @@ object Poly6Laws {
     implicit val genInt = arbitrary[Int]
     implicit val genLong = arbitrary[Long]
 
-    def genType: Gen[TypeWith[Transformable]] =
+    def genType: Gen[TypeWith[GenCogen]] =
       Gen.oneOf(
-        TypeWith[Unit, Transformable],
-        TypeWith[Boolean, Transformable],
-        TypeWith[Byte, Transformable],
-        TypeWith[Char, Transformable],
-        TypeWith[Short, Transformable],
-        TypeWith[Int, Transformable],
-        TypeWith[Long, Transformable],
+        TypeWith[Unit, GenCogen],
+        TypeWith[Boolean, GenCogen],
+        TypeWith[Byte, GenCogen],
+        TypeWith[Char, GenCogen],
+        TypeWith[Short, GenCogen],
+        TypeWith[Int, GenCogen],
+        TypeWith[Long, GenCogen],
       )
 
     ////
 
-    def genSimple(t: TypeWith[Transformable]): Gen[Coll[t.Type]] =
+    def genSimple(t: TypeWith[GenCogen]): Gen[Coll[t.Type]] =
       for {
         n <- Gen.chooseNum(0, 10)
         l <- Gen.listOfN(n, t.evidence.gen)
       } yield Coll.of(l)
 
-    def genFilter(t: TypeWith[Transformable]): Gen[Coll[t.Type]] =
+    def genFilter(t: TypeWith[GenCogen]): Gen[Coll[t.Type]] =
       for {
         coll <- genMultilevel(t)
         predicate <- Gen.function1(arbitrary[Boolean])(t.evidence.cogen)
       } yield coll.filter(predicate)
 
-    def genMap(tB: TypeWith[Transformable]): Gen[Coll[tB.Type]] =
+    def genMap(tB: TypeWith[GenCogen]): Gen[Coll[tB.Type]] =
       for {
         tA <- genType // first select a type
         coll <- genMultilevel(tA)
         f <- Gen.function1(tB.evidence.gen)(tA.evidence.cogen)
       } yield coll.map(f)
 
-    def genFlatMap(tB: TypeWith[Transformable]): Gen[Coll[tB.Type]] =
+    def genFlatMap(tB: TypeWith[GenCogen]): Gen[Coll[tB.Type]] =
       for {
         tA <- genType // first select a type
         coll <- genMultilevel(tA)
@@ -66,7 +66,7 @@ object Poly6Laws {
           Coll.of(List.fill(5)(f(a)))
       )
 
-    def genMultilevel(t: TypeWith[Transformable]): Gen[Coll[t.Type]] =
+    def genMultilevel(t: TypeWith[GenCogen]): Gen[Coll[t.Type]] =
       Gen.delay(
         Gen.oneOf(
           genSimple(t),
@@ -92,7 +92,7 @@ object Poly6Laws {
     ////
 
     // functor associative law:
-    //    F(fbc) ∘ F(fab)) = F(fbc ∘ fab)
+    //    F(fbc) ∘ F(fab) = F(fbc ∘ fab)
     Prop.forAll(
       for {
         tA <- genType // first select a type A
@@ -103,7 +103,7 @@ object Poly6Laws {
         // fbc <- Gen.function1(tC.evidence.gen)(tB.evidence.cogen)
       } yield (tA, tB, tC)
     ) {
-      case (tA: TypeWith[Transformable], tB: TypeWith[Transformable], tC: TypeWith[Transformable]) =>
+      case (tA: TypeWith[GenCogen], tB: TypeWith[GenCogen], tC: TypeWith[GenCogen]) =>
 
         val cA: Coll[tA.Type] = genMultilevel(tA).sample.get
         val fab: tA.Type => tB.Type = Gen.function1(tB.evidence.gen)(tA.evidence.cogen).sample.get
@@ -114,6 +114,7 @@ object Poly6Laws {
         // println(cA.map(fbc.compose(fab)).show)
         // println("---------")
 
+        // F(fbc) ∘ F(fab) = F(fbc ∘ fab)
         cA.map(fab).map(fbc) === cA.map(fbc.compose(fab))
     }.check
 
