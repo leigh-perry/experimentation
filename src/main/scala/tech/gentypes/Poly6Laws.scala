@@ -104,33 +104,21 @@ object Poly6Laws {
     }
 
     Prop.forAll(
-      genType.flatMap[TInfo](
-        tA =>
-          genType.flatMap[TInfo](
-            tB =>
-              genType.flatMap[TInfo](
-                tC =>
-                  genMultilevel(tA).flatMap[TInfo](
-                    ccA =>
-                      Gen.function1[tA.Type, tB.Type](tB.evidence.gen)(tA.evidence.cogen).flatMap[TInfo](
-                        cfab =>
-                          Gen.function1[tB.Type, tC.Type](tC.evidence.gen)(tB.evidence.cogen)
-                            .map(
-                              cfbc =>
-                                new TInfo {
-                                  type A = tA.Type
-                                  type B = tB.Type
-                                  type C = tC.Type
-                                  val cA: Coll[A] = ccA
-                                  val fab: A => B = cfab
-                                  val fbc: B => C = cfbc
-                                }
-                            )
-                      )
-                  )
-              )
-          )
-      )
+      for {
+        tA <- genType // first select a type A
+        tB <- genType // first select a type B
+        tC <- genType // first select a type C
+        ccA <- genMultilevel(tA)
+        cfab <- Gen.function1[tA.Type, tB.Type](tB.evidence.gen)(tA.evidence.cogen)
+        cfbc <- Gen.function1[tB.Type, tC.Type](tC.evidence.gen)(tB.evidence.cogen)
+      } yield new TInfo {
+        type A = tA.Type
+        type B = tB.Type
+        type C = tC.Type
+        val cA: Coll[A] = ccA
+        val fab: A => B = cfab
+        val fbc: B => C = cfbc
+      } : TInfo
     ) {
       info =>
         import info._
