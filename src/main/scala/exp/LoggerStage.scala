@@ -154,20 +154,29 @@ object LoggerStage {
 
   ////
 
+  type Log = LogStage[String, String]
+
   def main(args: Array[String]): Unit = {
 
-    val cfg = Config(2)
+    val log: Log = LogStage.levelledLogStage
 
     (new Ops)
       .doStuff
-      .run(cfg)
+      .run(log)
       .unsafeRunSync()
   }
 
-  final case class Config(n: Int)
-
   class Ops {
-    def doStuff[S]: Kleisli[IO, Config, Unit] =
-      Kleisli(cfg => IO.delay(println(s"stuff done: $cfg")))
+    def doStuff[S]: Kleisli[IO, Log, Unit] =
+      Kleisli(log => IO.delay(println(log.info(s"stuff done"))))
+
+    def scoped[A, B](acquire: Kleisli[IO, Log, A])(
+      use: A => Kleisli[IO, Log, B]
+    )(
+      release: A => Kleisli[IO, Log, Unit]
+    ):
+    Kleisli[IO, Log, B] =
+      ???
   }
+
 }
