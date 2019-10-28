@@ -33,6 +33,8 @@ object Monoids {
       println(wordMap)
     }
 
+    println("===============")
+
     ////
 
     final case class Max(i: Int)
@@ -57,6 +59,53 @@ object Monoids {
       println(min)
       println(countMap)
     }
+
+    println("===============")
+
+    val int2MaxFunctions: List[Int => Max] =
+      List(
+        (i: Int) => Max(i * i),
+        (i: Int) => Max(i * 5),
+        (i: Int) => Max(i + 6)
+      )
+    (0 to 10).foreach {
+      i =>
+        val best: Int => Max = int2MaxFunctions.foldMap(identity) // avoid List.fold()
+        println(s"$i => ${best(i)}")
+    }
+
+    ////
+
+    val int2MinFunctions: List[Int => Min] =
+      List(
+        (i: Int) => Min(i * i),
+        (i: Int) => Min(i * 5),
+        (i: Int) => Min(i + 6)
+      )
+    (0 to 10).foreach {
+      i =>
+        val best: Int => Min = int2MinFunctions.foldMap(identity) // avoid List.fold()
+        println(s"$i => ${best(i)}")
+    }
+
+    println("===============")
+
+    ////
+
+    val int2IntFunctions: List[Int => Int] =
+      List(
+        (i: Int) => i * i,
+        (i: Int) => i * 5,
+        (i: Int) => i + 6
+      )
+    (0 to 10).foreach {
+      i =>
+        val total: Int => Int = int2IntFunctions.foldMap(identity) // avoid List.fold()
+        println(s"$i => ${total(i)}")
+    }
+  }
+
+  println("===============")
 
     // (b) inductively
 
