@@ -1,12 +1,13 @@
 name := "experimentation"
 version := "1.0.1-SNAPSHOT"
 
-scalaVersion := "2.12.8"
+scalaVersion := "2.12.10"
 //scalacOptions := Seq("-unchecked", "-deprecation", "-Xexperimental", "-feature")
 scalacOptions ++=
   Seq(
     "-deprecation",
-    "-encoding", "UTF-8",
+    "-encoding",
+    "UTF-8",
     "-feature",
     "-language:existentials",
     "-language:higherKinds",
@@ -24,7 +25,7 @@ scalacOptions ++=
     "-Xexperimental"
   )
 
-addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.10.3" /* cross CrossVersion.binary*/)
+addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.10.3" /* cross CrossVersion.binary*/ )
 libraryDependencies += "org.slf4j" % "slf4j-api" % "1.7.28"
 
 libraryDependencies += "com.lihaoyi" %% "pprint" % "0.5.5"
@@ -41,6 +42,7 @@ libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.14.2" /*% "test"*/
 libraryDependencies += "io.monix" %% "minitest" % "2.7.0" /*% "test"*/
 libraryDependencies += "io.monix" %% "minitest-laws" % "2.7.0" /*% "test"*/
 
-libraryDependencies += "io.github.stanch" % "reftree_2.12" % "1.4.0"
 libraryDependencies += "co.fs2" %% "fs2-core" % "2.0.1"
 libraryDependencies += "co.fs2" %% "fs2-io" % "2.0.1"
+
+libraryDependencies += "io.github.stanch" % "reftree_2.12" % "1.4.0"

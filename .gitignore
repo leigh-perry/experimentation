@@ -1,6 +1,9 @@
 _work/
 cassandra_data/
 custom-plugins/
+.bloop
+.metals
+.vscode
 
 # Created by .ignore support plugin (hsz.mobi)
 ### JetBrains template

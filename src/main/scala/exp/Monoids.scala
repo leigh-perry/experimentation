@@ -1,8 +1,9 @@
 package exp
 
-import cats.data.{ Const, Nested, NonEmptyList, State, Tuple2K }
+import cats.data.{Const, Nested, NonEmptyList, State, Tuple2K}
+import cats.effect.{IO, Timer}
 import cats.implicits._
-import cats.{ Applicative, Monoid, Semigroup }
+import cats.{Applicative, Monoid, Semigroup, Show}
 
 object Monoids {
   // List[A]
@@ -22,12 +23,12 @@ object Monoids {
     // (b) inductively
 
     // (a) products
-    val list =
+    val wordList =
       List("Hi my name is Ingrid what is your name")
         .flatMap(_.split("""\W+"""))
 
     if (false) {
-      val (words, chars, wordMap) = list.foldMap(word => (1, word.length, Map(word -> 1)))
+      val (words, chars, wordMap) = wordList.foldMap(word => (1, word.length, Map(word -> 1)))
       println(words)
       println(chars)
       println(wordMap)
@@ -53,7 +54,9 @@ object Monoids {
 
     if (false) {
       val (count, max, min, countMap) =
-        list.foldMap(word => (1, Max(word.length), Min(word.length), Map(word.length -> Set(word))))
+        wordList.foldMap(
+          word => (1, Max(word.length), Min(word.length), Map(word.length -> Set(word)))
+        )
       println(count)
       println(max)
       println(min)
@@ -103,9 +106,8 @@ object Monoids {
         val total: Int => Int = int2IntFunctions.foldMap(identity) // avoid List.fold()
         println(s"$i => ${total(i)}")
     }
-  }
 
-  println("===============")
+    println("===============")
 
     // (b) inductively
 
@@ -127,7 +129,7 @@ object Monoids {
 
     if (true) {
       val (max, min) =
-        list.foldMap((s: String) => (Option(SgMax(s.length)), Option(SgMin(s.length))))
+        wordList.foldMap((s: String) => (Option(SgMax(s.length)), Option(SgMin(s.length))))
       println(max)
       println(min)
     }
@@ -180,7 +182,6 @@ object Monoids {
     val someApplicative = Applicative[Tuple2K[List, Nested[Nested[List, Option, *], Option, *], *]]
 
   }
-
 }
 
 object WordCount1 {
@@ -280,5 +281,55 @@ object WordCount2 {
       }
 
     println(vv.foldMap(identity))
+  }
+}
+
+object SortedListMonoid {
+
+  final case class SortedList[A: Ordering](list: List[A])
+
+  object SortedList {
+    implicit def showInstance[A: Ordering]: Show[SortedList[A]] =
+      new Show[SortedList[A]] {
+        override def show(t: SortedList[A]): String =
+          t.toString
+      }
+  }
+
+  implicit def sortedListMonoid[A: Ordering]: Monoid[SortedList[A]] =
+    new Monoid[SortedList[A]] {
+      override def empty: SortedList[A] =
+        SortedList(List.empty[A])
+
+      override def combine(x: SortedList[A], y: SortedList[A]): SortedList[A] =
+        SortedList(mergeSort(x.list, y.list))
+    }
+
+  def mergeSort[A: Ordering](x: List[A], y: List[A]): List[A] =
+    (x, y) match {
+      case (Nil, y) => y
+      case (x, Nil) => x
+      case (xh :: xt, yh :: yt) if Ordering[A].compare(xh, yh) < 1 => xh :: mergeSort(xt, y)
+      case (xh :: xt, yh :: yt) => yh :: mergeSort(x, yt)
+    }
+
+  def main(args: Array[String]): Unit = {
+    import fs2.Stream
+
+    import scala.concurrent.ExecutionContext
+    import scala.concurrent.duration.DurationInt
+    implicit val timer: Timer[IO] = IO.timer(ExecutionContext.global)
+
+    val count = 10
+    Stream
+      .fixedRate[IO](500.milliseconds)
+      .zip(Stream.range[IO](1, count))
+      .map(count - _._2)
+      .map(i => SortedList(List(i)))
+      .scanMonoid
+      .showLinesStdOut
+      .compile
+      .drain
+      .unsafeRunSync()
   }
 }
