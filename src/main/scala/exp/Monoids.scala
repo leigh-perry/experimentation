@@ -1,9 +1,9 @@
 package exp
 
-import cats.data.{ Const, Nested, NonEmptyList, State, Tuple2K }
-import cats.effect.{ IO, Timer }
+import cats.data.{Const, Nested, NonEmptyList, State, Tuple2K}
+import cats.effect.{IO, Timer}
 import cats.implicits._
-import cats.{ Applicative, Monoid, Semigroup, Show }
+import cats.{Applicative, Monoid, Semigroup, Show}
 
 object Monoids {
   // List[A]
