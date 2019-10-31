@@ -1,9 +1,9 @@
 package exp
 
-import cats.data.{Const, Nested, NonEmptyList, State, Tuple2K}
-import cats.effect.{IO, Timer}
+import cats.data.{ Const, Nested, NonEmptyList, State, Tuple2K }
+import cats.effect.{ IO, Timer }
 import cats.implicits._
-import cats.{Applicative, Monoid, Semigroup, Show}
+import cats.{ Applicative, Monoid, Semigroup, Show }
 
 object Monoids {
   // List[A]
@@ -309,8 +309,10 @@ object SortedListMonoid {
     (x, y) match {
       case (Nil, y) => y
       case (x, Nil) => x
-      case (xh :: xt, yh :: yt) if Ordering[A].compare(xh, yh) < 1 => xh :: mergeSort(xt, y)
-      case (xh :: xt, yh :: yt) => yh :: mergeSort(x, yt)
+      case (xh :: xt, yh :: yt) if Ordering[A].compare(xh, yh) < 1 =>
+        xh :: mergeSort(xt, y)
+      case (xh :: xt, yh :: yt) =>
+        yh :: mergeSort(x, yt)
     }
 
   def main(args: Array[String]): Unit = {
