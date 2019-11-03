@@ -74,12 +74,12 @@ object Cps {
   ////
 
   def factorial1(n: Int): Int =
-    if (n < 2) n
+    if (n == 1) n
     else n * factorial1(n - 1)
 
   @tailrec
   def factorial2(n: Int, acc: Int): Int =
-    if (n < 2) n * acc
+    if (n == 1) n * acc
     else {
       //val fac = factorial1(n - 1)
       //n * fac
@@ -88,7 +88,7 @@ object Cps {
 
   @tailrec
   def factorial3(n: Int, c: Int => Int): Int =
-    if (n < 2) c(1)
+    if (n == 1) c(1)
     else factorial3(n - 1, y => c(y * n))
 
   ////
@@ -99,16 +99,26 @@ object Cps {
     final case object Identity extends ContFactorial
   }
 
-  def eval(c: ContFactorial, n: Int): Int =
-    c match {
-      case ContFactorial.Multiply(nn, followedBy) => eval(followedBy, n * nn)
-      case ContFactorial.Identity => n
-    }
-
   @tailrec
-  def factorial4(n: Int, c: ContFactorial): Int =
-    if (n < 2) eval(c, 1)
+  def factorial4(n: Int, c: ContFactorial): Int = {
+    @tailrec
+    def eval(cc: ContFactorial, nn: Int): Int =
+      cc match {
+        case ContFactorial.Multiply(nn, followedBy) =>
+          eval(followedBy, nn * nn)
+        case ContFactorial.Identity =>
+          nn
+      }
+
+    if (n == 1) eval(c, 1)
     else factorial4(n - 1, ContFactorial.Multiply(n, c))
+  }
+
+  ////
+
+  def fib1(n: Int): Int =
+    if (n <= 2) n
+    else fib1(n - 1) + fib1(n - 2)
 
   ////
 
@@ -138,6 +148,8 @@ object Cps {
     println(factorial3(factVal, identity))
     println("==== factorial4 ====")
     println(factorial4(factVal, ContFactorial.Identity))
+
+    println((0 to 9).map(n => fib1(n).toString).mkString(", "))
   }
 
   final case class Tree(left: Option[Tree], value: String, right: Option[Tree])
