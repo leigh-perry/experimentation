@@ -1,138 +1,16 @@
-package exp
+package tech.monoidnthat
 
 import cats.data.{Const, Nested, NonEmptyList, State, Tuple2K}
 import cats.effect.{IO, Timer}
 import cats.implicits._
-import cats.{Applicative, Monoid, Semigroup, Show}
+import cats.{Applicative, Monoid, Show}
 
-object Monoids {
-  // List[A]
-  // A => B     if B is monoid (mempty is id, mappend = .)
-  // (A, B)     if A and B are monoids
-  // Future[A]  if A is monoid
-  // Map[A, B]
+object Monoid7Applicative {
 
   def main(args: Array[String]): Unit = {
 
-    // Monoid
-
-    // TODO basic monoid demo
-
-    // Monoids compose:
-    // (a) products
-    // (b) inductively
-
-    // (a) products
-    val wordList =
-      List("Hi my name is Ingrid what is your name")
-        .flatMap(_.split("""\W+"""))
-
-    if (false) {
-      val (words, chars, wordMap) = wordList.foldMap(word => (1, word.length, Map(word -> 1)))
-      println(words)
-      println(chars)
-      println(wordMap)
-    }
-
-    println("===============")
-
-    ////
-
-    final case class Max(i: Int)
-    implicit val intMaxMonoid =
-      new Monoid[Max] {
-        override def empty: Max = Max(Int.MinValue)
-        override def combine(x: Max, y: Max): Max = if (x.i > y.i) x else y
-      }
-
-    final case class Min(i: Int)
-    implicit val intMinMonoid =
-      new Monoid[Min] {
-        override def empty: Min = Min(Int.MaxValue)
-        override def combine(x: Min, y: Min): Min = if (x.i < y.i) x else y
-      }
-
-    if (false) {
-      val (count, max, min, countMap) =
-        wordList.foldMap(
-          word => (1, Max(word.length), Min(word.length), Map(word.length -> Set(word)))
-        )
-      println(count)
-      println(max)
-      println(min)
-      println(countMap)
-    }
-
-    println("===============")
-
-    val int2MaxFunctions: List[Int => Max] =
-      List(
-        (i: Int) => Max(i * i),
-        (i: Int) => Max(i * 5),
-        (i: Int) => Max(i + 6)
-      )
-    (0 to 10).foreach {
-      i =>
-        val best: Int => Max = int2MaxFunctions.foldMap(identity) // avoid List.fold()
-        println(s"$i => ${best(i)}")
-    }
-
-    ////
-
-    val int2MinFunctions: List[Int => Min] =
-      List(
-        (i: Int) => Min(i * i),
-        (i: Int) => Min(i * 5),
-        (i: Int) => Min(i + 6)
-      )
-    (0 to 10).foreach {
-      i =>
-        val best: Int => Min = int2MinFunctions.foldMap(identity) // avoid List.fold()
-        println(s"$i => ${best(i)}")
-    }
-
-    println("===============")
-
-    ////
-
-    val int2IntFunctions: List[Int => Int] =
-      List(
-        (i: Int) => i * i,
-        (i: Int) => i * 5,
-        (i: Int) => i + 6
-      )
-    (0 to 10).foreach {
-      i =>
-        val total: Int => Int = int2IntFunctions.foldMap(identity) // avoid List.fold()
-        println(s"$i => ${total(i)}")
-    }
-
-    println("===============")
-
-    // (b) inductively
-
-    // eg Option[A] is monoid if A is a semigroup
-    //val nelMonoid1 = Monoid[Option[NonEmptyList[String]]]
-
-    // calculate min and max without reserving in-band values Int.MaxValue or Int.MinValue
-    final case class SgMax(i: Int)
-    implicit val intSgMaxSemigroup =
-      new Semigroup[SgMax] {
-        override def combine(x: SgMax, y: SgMax): SgMax = if (x.i > y.i) x else y
-      }
-
-    final case class SgMin(i: Int)
-    implicit val intSgMinSemigroup =
-      new Semigroup[SgMin] {
-        override def combine(x: SgMin, y: SgMin): SgMin = if (x.i < y.i) x else y
-      }
-
-    if (true) {
-      val (max, min) =
-        wordList.foldMap((s: String) => (Option(SgMax(s.length)), Option(SgMin(s.length))))
-      println(max)
-      println(min)
-    }
+    // TODO
+    // val x = implicitly[MonoidK[Function1[Int, *]]]
 
     //// Applicative <=> Monoid
 
@@ -140,11 +18,11 @@ object Monoids {
     //   pure ~ empty
     //   ap / product ~ combine
 
-    // (a) Monoid of applicative
+    // (a) Monoid instance for any applicative
     // (b) promote any Monoid to Applicative
 
     // (a) Monoid of applicative
-    implicit def monoidOfApplicative[F[_], A](
+    implicit def monoidForApplicative[F[_], A](
       implicit F: Applicative[F],
       M: Monoid[A]
     ): Monoid[F[A]] =
@@ -157,14 +35,13 @@ object Monoids {
 
     val nelMonoid2 = Monoid[NonEmptyList[String]]
 
-    // (b) Applicative of Monoid ... any time Applicative is requires and only have a Monoid
+    // (b) promote any Monoid to Applicative ... any time Applicative is required but only have a Monoid
 
     // Const has applicative instance ignores F[A => B] in the right and semigroup-combines
     // the two left sides
     val applicativeConst = Applicative[Const[String, *]]
 
-    val egMonoid = Monoid[(Option[Int], String)]
-    val egApplicative = Applicative[Const[(Option[Int], String), *]]
+    val egApplicativeFromMonoid = Applicative[Const[(Option[Int], String), *]]
 
     //// Composition of Applicative
 
