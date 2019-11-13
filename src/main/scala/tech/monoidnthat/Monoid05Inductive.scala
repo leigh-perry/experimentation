@@ -3,7 +3,7 @@ package tech.monoidnthat
 import cats.Semigroup
 import cats.implicits._
 
-object Monoid6Inductive {
+object Monoid05Inductive {
 
   final case class SgMax(i: Int) extends AnyVal
   implicit val intSgMaxSemigroup =

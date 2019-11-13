@@ -7,7 +7,7 @@ import cats.instances.string._
 import cats.instances.unit._
 import cats.kernel.Monoid
 
-object Monoid1Intro {
+object Monoid01Intro {
 
   // trait Semigroup[A] {
   //   def combine(x: A, y: A): A
@@ -24,4 +24,13 @@ object Monoid1Intro {
   val mUnit = Monoid[Unit]
 
   val mDouble = Monoid[Double]
+
+
+  //  associativity
+  //    (x <> y) <> z = x <> (y <> z)
+  //  left identity
+  //    mempty <> x = x
+  //  right identity
+  //    x <> mempty = x
+
 }

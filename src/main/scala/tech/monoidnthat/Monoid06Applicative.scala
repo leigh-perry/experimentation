@@ -5,7 +5,7 @@ import cats.effect.{ IO, Timer }
 import cats.implicits._
 import cats.{ Applicative, Monoid, Show }
 
-object Monoid7Applicative {
+object Monoid06Applicative {
 
   def main(args: Array[String]): Unit = {
 

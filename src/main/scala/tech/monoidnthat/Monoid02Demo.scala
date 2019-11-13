@@ -4,7 +4,7 @@ import cats.instances.int._
 import cats.instances.list._
 import cats.syntax.foldable._
 
-object Monoid3Demo {
+object Monoid02Demo {
 
   def main(args: Array[String]): Unit = {
 

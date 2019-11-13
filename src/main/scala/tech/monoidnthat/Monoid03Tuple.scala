@@ -8,7 +8,7 @@ import cats.instances.set._
 import cats.instances.tuple._
 import cats.syntax.foldable._
 
-object Monoid4Tuple {
+object Monoid03Tuple {
 
   final case class Max(i: Int)
   implicit val intMaxMonoid =

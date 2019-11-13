@@ -2,11 +2,11 @@ package tech.monoidnthat
 
 import cats.implicits._
 
-object Monoid5Function {
+object Monoid04Function {
 
   def main(args: Array[String]): Unit = {
 
-    import Monoid4Tuple._
+    import Monoid03Tuple._
 
     if (false) {
       val int2IntFunctions: List[Int => Int] =
