@@ -5,11 +5,15 @@ import cats.implicits._
 
 object Monoid10WordCountApplic {
 
-  def countChars[A](c: Char): Const[Int, A] = Const.of(1)
-  def countLines[A](c: Char): Const[Int, A] = Const.of[A](if (c == '\n') 1 else 0)
+  def countChars[A](c: Char): Const[Int, A] =
+    Const.of(1)
+
+  def countLines[A](c: Char): Const[Int, A] =
+    Const.of[A](if (c == '\n') 1 else 0)
 
   def countWords[A](c: Char): Nested[State[Boolean, *], Const[Int, *], A] =
     Nested[State[Boolean, *], Const[Int, *], A] {
+      // F: State[Boolean, *] ; G: Const[Int, *]
       for {
         before <- State.get[Boolean]
         after = !c.isWhitespace
@@ -46,4 +50,14 @@ object Monoid10WordCountApplic {
 
     // Can use `Ref` instead of `State`
   }
+
+  val chars: List[Char] =
+    """Tonight's the night
+      |I shall be talking about of flu
+      |the   subject   of
+      |word association football
+      |""".stripMargin.toList
+
+  def main(args: Array[String]): Unit =
+    println(run(chars))
 }

@@ -4,6 +4,9 @@ import cats.Monoid
 import cats.implicits._
 
 object Monoid11WordCountFlux {
+
+  // TODO up to here
+
   /*
   data CharType = IsSpace | NotSpace
     deriving Show
@@ -21,19 +24,15 @@ object Monoid11WordCountFlux {
   object NotSpace extends CharType
 
   sealed trait Flux
-  case class FluxN(ctstart: CharType, count: Int, ctend: CharType) extends Flux
+  case class FluxN(atLeft: CharType, count: Int, atRight: CharType) extends Flux
   case object Unknown extends Flux // mempty... could use Option[Flux] instead
 
   implicit val monoidFlux =
     new Monoid[Flux] {
-      override def empty: Flux =
-        Unknown
-      override def combine(x: Flux, y: Flux): Flux =
-        (x, y) match {
-          case (x, Unknown) =>
-            x
-          case (Unknown, y) =>
-            y
+      override def empty: Flux = Unknown
+      override def combine(x: Flux, y: Flux): Flux = (x, y) match {
+          case (x, Unknown) => x
+          case (Unknown, y) => y
           case (FluxN(l, n, NotSpace), FluxN(NotSpace, nn, r)) =>
             FluxN(l, n + nn - 1, r) // split was in middle of a word... word is double-counted
           case (FluxN(l, n, _), FluxN(_, nn, r)) =>
@@ -48,12 +47,12 @@ object Monoid11WordCountFlux {
   def main(args: Array[String]): Unit = {
     println("a word or two or three".toCharArray.toVector.foldMap(flux))
 
-    val vv: Vector[Flux] =
+    val v: Vector[Flux] =
       Vector("a wo", "rd or", " tw", "o or ", "three").map {
         (s: String) =>
           s.toCharArray.toVector.foldMap(flux)
       }
 
-    println(vv.foldMap(identity))
+    println(v.foldMap(identity))
   }
 }

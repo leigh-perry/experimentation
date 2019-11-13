@@ -29,17 +29,17 @@ object Monoid09WordCountCustom {
       |""".stripMargin.toList
 
   def main(args: Array[String]): Unit = {
-val counts =
-  chars.foldMap(
-    c =>
-      Counts(
-        lines = if (c == '\n') 1 else 0,
-        inWord = c != ' ' && c != '\n',
-        words = 0,
-        chars = 1
+    val counts =
+      chars.foldMap(
+        c =>
+          Counts(
+            lines = if (c == '\n') 1 else 0,
+            inWord = c != ' ' && c != '\n',
+            words = 0,
+            chars = 1
+          )
       )
-  )
-println(counts)
+    println(counts)
   }
 
 }
