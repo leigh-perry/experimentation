@@ -1,11 +1,10 @@
 package tech.monoidnthat
 
 import cats.Monoid
-import cats.implicits._
+import cats.instances.vector._
+import cats.syntax.foldable._
 
 object Monoid11WordCountFlux {
-
-  // TODO up to here
 
   /*
   data CharType = IsSpace | NotSpace

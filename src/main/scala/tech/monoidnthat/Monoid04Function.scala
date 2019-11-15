@@ -1,6 +1,9 @@
 package tech.monoidnthat
 
-import cats.implicits._
+import cats.instances.function._
+import cats.instances.int._
+import cats.instances.list._
+import cats.syntax.foldable._
 
 object Monoid04Function {
 

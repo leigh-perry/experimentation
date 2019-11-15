@@ -1,7 +1,8 @@
 package tech.monoidnthat
 
 import cats.Monoid
-import cats.implicits._
+import cats.instances.list._
+import cats.syntax.foldable._
 
 object Monoid09WordCountCustom {
 
