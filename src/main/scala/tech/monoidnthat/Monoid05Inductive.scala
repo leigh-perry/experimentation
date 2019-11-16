@@ -1,7 +1,10 @@
 package tech.monoidnthat
 
 import cats.Semigroup
-import cats.implicits._
+import cats.instances.list._
+import cats.instances.option._
+import cats.instances.tuple._
+import cats.syntax.foldable._
 
 object Monoid05Inductive {
 

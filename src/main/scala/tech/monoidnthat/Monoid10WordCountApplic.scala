@@ -1,7 +1,9 @@
 package tech.monoidnthat
 
-import cats.data.{ Const, Nested, State, Tuple2K }
-import cats.implicits._
+import cats.data.{Const, Nested, State, Tuple2K}
+import cats.syntax.foldable._
+import cats.instances.int._
+import cats.instances.list._
 
 object Monoid10WordCountApplic {
 

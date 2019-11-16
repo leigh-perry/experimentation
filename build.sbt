@@ -26,6 +26,8 @@ scalacOptions ++=
   )
 
 addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.10.3" /* cross CrossVersion.binary*/ )
+addCompilerPlugin("com.github.cb372" % "scala-typed-holes" % "0.1.1" cross CrossVersion.full)
+
 libraryDependencies += "org.slf4j" % "slf4j-api" % "1.7.28"
 
 libraryDependencies += "com.lihaoyi" %% "pprint" % "0.5.5"

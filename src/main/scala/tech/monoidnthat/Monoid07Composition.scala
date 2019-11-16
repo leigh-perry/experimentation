@@ -2,10 +2,8 @@ package tech.monoidnthat
 
 import cats.Applicative
 import cats.data.Nested
-import cats.implicits._
-
-// TODO
-// val x = implicitly[MonoidK[Function1[Int, *]]]
+import cats.instances.list._
+import cats.instances.option._
 
 object Monoid07Composition {
 
