@@ -30,10 +30,12 @@ object FreeMonad {
     extends FreeMonad[F, B]
 }
 
-trait Imperative {
-  def read(file: String): String
-  def write(file: String, contents: String): Unit
-}
+//// sample app
+
+//trait Imperative {
+//  def read(file: String): String
+//  def write(file: String, contents: String): Unit
+//}
 
 sealed trait Ops[A]
 
