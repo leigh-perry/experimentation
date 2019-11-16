@@ -1,22 +1,36 @@
 package free
 
-import cats.{Monad, ~>}
+import cats.{ ~>, Applicative }
 
 sealed trait FreeAp[F[_], A] {
   import FreeAp._
 
-  def foldMap[G[_]: Monad](nt: F ~> G): G[A] =
+  def foldMap[G[_]: Applicative](nt: F ~> G): G[A] =
     this match {
-      case Pure(a) => Monad[G].pure(a)
+      case Pure(a) => Applicative[G].pure(a)
+
+      case Ap(fa, f) => // f: FreeAp[F, A => B]
+        val ga: G[A] = fa.asInstanceOf[FreeAp[F, A]].foldMap(nt)
+        Applicative[G].ap(f.foldMap(nt))(ga.asInstanceOf[G[Any]])
+
+      case Suspend(fa) => nt(fa)
     }
 }
 
 object FreeAp {
-  def pure[F[_], A](a: A): FreeAp[F, A] = Pure(a)
   def liftM[F[_], A](fa: F[A]): FreeAp[F, A] = Suspend(fa)
 
   final case class Pure[F[_], A](a: A) extends FreeAp[F, A]
+  final case class Ap[F[_], A, B](fa: FreeAp[F, A], f: FreeAp[F, A => B]) extends FreeAp[F, B]
   final case class Suspend[F[_], A](fa: F[A]) extends FreeAp[F, A]
+
+  implicit def applicativeForFreeAp[F[_]]: Applicative[FreeAp[F, *]] =
+    new Applicative[FreeAp[F, *]] {
+      override def pure[A](x: A): FreeAp[F, A] =
+        Pure(x)
+      override def ap[A, B](ff: FreeAp[F, A => B])(fa: FreeAp[F, A]): FreeAp[F, B] =
+        Ap(fa, ff)
+    }
 }
 
 //// sample app

@@ -11,11 +11,12 @@ sealed trait FreeMonad[F[_], A] {
   def foldMap[G[_]: Monad](nt: F ~> G): G[A] =
     this match {
       case Pure(a) => Monad[G].pure(a)
-      case Suspend(fa) => nt(fa)
-      case FlatMap(target, f) =>
-        // f: A => FreeMonad[F, B]
+
+      case FlatMap(target, f) =>  // f: A => FreeMonad[F, B]
         val ga: G[A] = target.asInstanceOf[FreeMonad[F, A]].foldMap(nt)
         Monad[G].flatMap(ga)(a => f(a).foldMap(nt))
+
+      case Suspend(fa) => nt(fa)
     }
 }
 
@@ -23,9 +24,9 @@ object FreeMonad {
   def liftM[F[_], A](fa: F[A]): FreeMonad[F, A] = Suspend(fa)
 
   final case class Pure[F[_], A](a: A) extends FreeMonad[F, A]
-  final case class Suspend[F[_], A](fa: F[A]) extends FreeMonad[F, A]
   final case class FlatMap[F[_], A, B](target: FreeMonad[F, A], f: A => FreeMonad[F, B])
     extends FreeMonad[F, B]
+  final case class Suspend[F[_], A](fa: F[A]) extends FreeMonad[F, A]
 
   implicit def monadForFreeMonad[F[_]]: Monad[FreeMonad[F, *]] =
     new Monad[FreeMonad[F, *]] {
