@@ -1,6 +1,8 @@
 package free
 
+import cats.effect.IO
 import cats.{ ~>, Applicative }
+import cats.syntax.apply._
 
 sealed trait FreeAp[F[_], A] {
   import FreeAp._
@@ -35,43 +37,37 @@ object FreeAp {
 
 //// sample app
 
-//trait Imperative {
-//  def read(file: String): String
-//  def write(file: String, contents: String): Unit
-//}
+sealed trait ApOps[A]
 
-//sealed trait Ops[A]
-//
-//object Ops {
-//  final case class Read(file: String) extends Ops[Int]
-//  final case class Write(file: String, contents: Int) extends Ops[Unit]
-//}
-//
-//object TestFreeAp {
-//  val interpreter: Ops ~> IO =
-//    new (Ops ~> IO) {
-//      override def apply[A](fa: Ops[A]): IO[A] =
-//        fa match {
-//          case Ops.Read(file) =>
-//            IO {
-//              println("reading")
-//              1234
-//            }
-//          case Ops.Write(file, contents) =>
-//            IO {
-//              println(s"writing $contents")
-//            }
-//        }
-//    }
-//
-//  def main(args: Array[String]): Unit = {
-//    val program: FreeAp[Ops, Unit] =
-//      for {
-//        i <- FreeAp.liftM(Ops.Read("filename"))
-//        _ <- FreeAp.liftM(Ops.Write("filename", i))
-//      } yield ()
-//
-//    val r: IO[Unit] = program.foldMap(interpreter)
-//    println(r.unsafeRunSync())
-//  }
-//}
+object ApOps {
+  final case class Read1(file: String) extends ApOps[Int]
+  final case class Read2(file: String) extends ApOps[Int]
+}
+
+object TestFreeAp {
+  val interpreter: ApOps ~> IO =
+    new (ApOps ~> IO) {
+      override def apply[A](fa: ApOps[A]): IO[A] =
+        fa match {
+          case ApOps.Read1(file) =>
+            IO {
+              println(fa)
+              1234
+            }
+          case ApOps.Read2(file) =>
+            IO {
+              println(fa)
+              2345
+            }
+        }
+    }
+
+  def main(args: Array[String]): Unit = {
+    val program: FreeAp[ApOps, Int] =
+      (FreeAp.liftM(ApOps.Read1("filename1")), FreeAp.liftM(ApOps.Read2("filename2")))
+        .mapN(_ + _)
+
+    val r: IO[Int] = program.foldMap(interpreter)
+    println(r.unsafeRunSync())
+  }
+}
