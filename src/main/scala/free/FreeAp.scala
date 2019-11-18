@@ -31,7 +31,28 @@ object FreeAp {
       override def pure[A](x: A): FreeAp[F, A] =
         Pure(x)
       override def ap[A, B](ff: FreeAp[F, A => B])(fa: FreeAp[F, A]): FreeAp[F, B] =
-        Ap(fa, ff)
+        // naive implementation – NOTE: not strictly associative until interpreted
+        //Ap(fa, ff)
+        // --------------
+        // optimised implementation by applying laws
+        //  pure id <*> v = v                            -- Identity
+        //  pure f <*> pure x = pure (f x)               -- Homomorphism
+        //  u <*> pure y = pure ($ y) <*> u              -- Interchange
+        //    Ap(u, Pure(x)) must always equal Ap(Pure(f => f(x)), u)
+        //  pure (.) <*> u <*> v <*> w = u <*> (v <*> w) -- Composition
+        //    Ap(Ap(Ap(Pure(compose), u), v), w) must be equal to Ap(u, Ap(v, w))
+        (ff, fa) match {
+          case (Pure(f), Pure(x)) =>
+            Pure(f(x))
+          case (u, Pure(x)) =>
+            // Interchange Ap(u, Pure(x)) must always equal Ap(Pure(f => f(x)), u)
+            Ap(
+              Pure((f: A => B) => f(x)).asInstanceOf[FreeAp[F, Any]],   // TODO how to eliminate casts?
+              u.asInstanceOf[FreeAp[F, Any => B]]
+            )
+          case _ =>
+            Ap(fa, ff)
+        }
     }
 }
 

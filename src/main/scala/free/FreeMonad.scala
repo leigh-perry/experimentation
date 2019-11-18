@@ -10,14 +10,14 @@ sealed trait FreeMonad[F[_], A] {
 
   def foldMap[G[_]: Monad](nt: F ~> G): G[A] =
     this match {
-        case Pure(a) => Monad[G].pure(a)
+      case Pure(a) => Monad[G].pure(a)
 
-      case FlatMap(target, f) =>  // f: A => FreeMonad[F, B]
+      case FlatMap(target, f) => // f: A => FreeMonad[F, B]
         val ga: G[A] = target.asInstanceOf[FreeMonad[F, A]].foldMap(nt)
         Monad[G].flatMap(ga)(a => f(a).foldMap(nt))
 
       case Suspend(fa) => nt(fa)
-  }
+    }
 }
 
 object FreeMonad {
@@ -33,7 +33,22 @@ object FreeMonad {
       override def pure[A](x: A): FreeMonad[F, A] =
         FreeMonad.Pure(x)
       override def flatMap[A, B](fa: FreeMonad[F, A])(f: A => FreeMonad[F, B]): FreeMonad[F, B] =
-        FreeMonad.FlatMap(fa, f)
+        // naive implementation – NOTE: not strictly associative until interpreted
+        //FreeMonad.FlatMap(fa, f)
+        // --------------
+        // optimised implementation by applying laws
+        //  Left identity: return a >>= f ≡ f a
+        //  Right identity: m >>= return ≡ m
+        //  Associativity: (m >>= g) >>= f ≡ m >>= (\x -> g x >>= f)
+        fa match {
+          case Pure(a) =>
+            f(a) // left identity: return a >>= f ≡ f a
+          case FlatMap(m, g) =>
+            FlatMap(m, (x: Any) => FlatMap(g(x), f)) // associativity: (m >>= f) >>= g ≡ m >>= (\x -> f x >>= g)
+          case Suspend(ffa) =>
+            FlatMap(fa, f)
+        }
+
       override def tailRecM[A, B](a: A)(f: A => FreeMonad[F, Either[A, B]]): FreeMonad[F, B] =
         flatMap(f(a)) {
           case Left(a0) => tailRecM(a0)(f)
