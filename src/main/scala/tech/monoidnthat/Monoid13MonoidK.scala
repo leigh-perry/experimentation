@@ -10,7 +10,7 @@ import cats.instances.set._
 import cats.syntax.foldable._
 import cats.syntax.semigroup._
 import cats.syntax.semigroupk._
-import cats.{Endo, FlatMap, MonoidK, SemigroupK}
+import cats.{ Endo, FlatMap, MonoidK, SemigroupK }
 
 object Monoid13MonoidK {
 
