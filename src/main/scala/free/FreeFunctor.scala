@@ -11,11 +11,7 @@ sealed trait FreeFunctor[F[_], A] {
     this match {
 
       case Map(fa, f) => // f: A => B
-        val ga: G[A] = fa.foldMap(nt).asInstanceOf[G[A]]
-        Functor[G].map(ga)(f)
-
-      // val ga: G[A] = fa.asInstanceOf[FreeFunctor[F, A]].foldMap(nt)
-      // Functor[G].ap(f.foldMap(nt))(ga.asInstanceOf[G[Any]])
+        Functor[G].map(fa.foldMap(nt))(f)
 
       case Suspend(fa) => nt(fa)
     }

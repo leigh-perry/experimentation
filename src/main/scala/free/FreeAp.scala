@@ -12,8 +12,7 @@ sealed trait FreeAp[F[_], A] {
       case Pure(a) => Applicative[G].pure(a)
 
       case Ap(fa, f) => // f: FreeAp[F, A => B]
-        val ga: G[A] = fa.asInstanceOf[FreeAp[F, A]].foldMap(nt)
-        Applicative[G].ap(f.foldMap(nt))(ga.asInstanceOf[G[Any]])
+        Applicative[G].ap(f.foldMap(nt))(fa.foldMap(nt))
 
       case Suspend(fa) => nt(fa)
     }

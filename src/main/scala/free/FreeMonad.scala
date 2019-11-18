@@ -13,8 +13,7 @@ sealed trait FreeMonad[F[_], A] {
       case Pure(a) => Monad[G].pure(a)
 
       case FlatMap(target, f) => // f: A => FreeMonad[F, B]
-        val ga: G[A] = target.asInstanceOf[FreeMonad[F, A]].foldMap(nt)
-        Monad[G].flatMap(ga)(a => f(a).foldMap(nt))
+        Monad[G].flatMap(target.foldMap(nt))(a => f(a).foldMap(nt))
 
       case Suspend(fa) => nt(fa)
     }
