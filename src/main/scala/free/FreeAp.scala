@@ -43,12 +43,9 @@ object FreeAp {
         (ff, fa) match {
           case (Pure(f), Pure(x)) =>
             Pure(f(x))
-          case (u, Pure(x)) =>
+          case (u: FreeAp[F, Any => B], Pure(x)) =>
             // Interchange Ap(u, Pure(x)) must always equal Ap(Pure(f => f(x)), u)
-            Ap(
-              Pure((f: A => B) => f(x)).asInstanceOf[FreeAp[F, Any]],   // TODO how to eliminate casts?
-              u.asInstanceOf[FreeAp[F, Any => B]]
-            )
+            Ap(Pure[F, Any]((f: A => B) => f(x)), u)
           case _ =>
             Ap(fa, ff)
         }
