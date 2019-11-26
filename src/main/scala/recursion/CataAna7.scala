@@ -12,14 +12,14 @@ object CataAna7 {
   implicit def patternFunctorInstance[E]: Functor[ListF[E, *]] =
     Functor[Option].compose[(E, *)]
 
-  def foldRight[S, E, B](f: Option[(E, B)] => B)(project: S => Option[(E, S)]): S => B =
+  def foldRight[F[_]: Functor, S, B](f: F[B] => B)(project: S => F[S]): S => B =
     new (S => B) {
       kernel =>
 
-      def step2: ListF[E, S] => ListF[E, B] =
+      def step2: F[S] => F[B] =
         _.fmap(kernel)
 
-      def step3: ListF[E, B] => B =
+      def step3: F[B] => B =
         f
 
       override def apply(list: S): B =
@@ -53,7 +53,9 @@ object CataAna7 {
     x => if (x > 0) Some((x, x - 1)) else None
 
   def main(args: Array[String]): Unit = {
-    println(foldRight[List[Int], Int, Int](productOp)(projectList)(1 :: 10 :: 20 :: Nil))
+    println(
+      foldRight[ListF[Int, *], List[Int], Int](productOp)(projectList)(patternFunctorInstance[Int])(1 :: 10 :: 20 :: Nil)
+    )
     println(unfold(rangeOp)(10))
   }
 }
