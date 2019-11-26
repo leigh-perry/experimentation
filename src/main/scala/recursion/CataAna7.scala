@@ -6,20 +6,21 @@ import cats.instances.tuple._
 import cats.syntax.functor._
 
 object CataAna7 {
-  def foldRight[E, B](f: Option[(E, B)] => B)(project: List[E] => Option[(E, List[E])]): List[E] => B = {
-    type ListF[P] = Option[(E, P)]
-    type S = List[E]
+   // type S = List[E]
 
-    implicit val patternFunctorInstance: Functor[ListF] =
+  def foldRight[S, E, B](f: Option[(E, B)] => B)(project: S => Option[(E, S)]): S => B = {
+    type F[P] = Option[(E, P)]
+
+    implicit val patternFunctorInstance: Functor[F] =
       Functor[Option].compose[(E, *)]
 
     new (S => B) {
       kernel =>
 
-      def step2: ListF[S] => ListF[B] =
+      def step2: F[S] => F[B] =
         _.fmap(kernel)
 
-      def step3: ListF[B] => B =
+      def step3: F[B] => B =
         f
 
       override def apply(list: S): B =
@@ -55,7 +56,7 @@ object CataAna7 {
     x => if (x > 0) Some((x, x - 1)) else None
 
   def main(args: Array[String]): Unit = {
-    println(foldRight(productOp)(projectList)(1 :: 10 :: 20 :: Nil))
+    println(foldRight[List[Int], Int, Int](productOp)(projectList)(1 :: 10 :: 20 :: Nil))
     println(unfold(rangeOp)(10))
   }
 }
