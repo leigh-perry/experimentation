@@ -9,11 +9,10 @@ object CataAna7 {
 
   type ListF[E, P] = Option[(E, P)]
 
-  def foldRight[S, E, B](f: Option[(E, B)] => B)(project: S => Option[(E, S)]): S => B = {
+  implicit def patternFunctorInstance[E]: Functor[ListF[E, *]] =
+    Functor[Option].compose[(E, *)]
 
-    implicit val patternFunctorInstance: Functor[ListF[E, *]] =
-      Functor[Option].compose[(E, *)]
-
+  def foldRight[S, E, B](f: Option[(E, B)] => B)(project: S => Option[(E, S)]): S => B =
     new (S => B) {
       kernel =>
 
@@ -26,7 +25,6 @@ object CataAna7 {
       override def apply(list: S): B =
         step3(step2(project(list)))
     }
-  }
 
   def unfold[E, A](f: A => Option[(E, A)]): A => List[E] =
     new (A => List[E]) {
@@ -45,8 +43,7 @@ object CataAna7 {
       case None => 1
     }
 
-  // impl here is last bit specific to List
-  def projectList[E]: List[E] => Option[(E, List[E])] =
+  def projectList[E]: List[E] => ListF[E, List[E]] =
     _ match {
       case Nil => Option.empty[(E, List[E])]
       case ::(head, tl) => Option((head, tl))
