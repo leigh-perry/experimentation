@@ -37,7 +37,7 @@ object CataAna7 {
         }
     }
 
-  val productOp: Option[(Int, Int)] => Int =
+  val productOp: ListF[Int, Int] => Int =
     _ match {
       case Some((x, y)) => x * y
       case None => 1
@@ -53,9 +53,8 @@ object CataAna7 {
     x => if (x > 0) Some((x, x - 1)) else None
 
   def main(args: Array[String]): Unit = {
-    println(
-      foldRight[ListF[Int, *], List[Int], Int](productOp)(projectList)(patternFunctorInstance[Int])(1 :: 10 :: 20 :: Nil)
-    )
+    val foldF = foldRight(productOp)(projectList) // (patternFunctorInstance[Int])
+    println(foldF(1 :: 10 :: 20 :: Nil))
     println(unfold(rangeOp)(10))
   }
 }
