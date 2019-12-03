@@ -22,7 +22,7 @@ object Monoid05Inductive {
 
   def main(args: Array[String]): Unit = {
 
-    val strings =
+    val phrases =
       List(
         "Some",
         "Phrases",
@@ -42,7 +42,7 @@ object Monoid05Inductive {
     // calculate min and max without reserving in-band values Int.MaxValue or Int.MinValue
     if (true) {
       val (max, min) =
-        strings.foldMap(
+        phrases.foldMap(
           s => Option(SgMax(s.length)) -> Option(SgMin(s.length))
         )
       println(max)

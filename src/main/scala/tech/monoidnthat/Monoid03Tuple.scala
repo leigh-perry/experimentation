@@ -10,14 +10,14 @@ import cats.syntax.foldable._
 
 object Monoid03Tuple {
 
-  final case class Max(i: Int)
+  final case class Max(i: Int) extends AnyVal
   implicit val intMaxMonoid =
     new Monoid[Max] {
       override def empty: Max = Max(Int.MinValue)
       override def combine(x: Max, y: Max): Max = if (x.i > y.i) x else y
     }
 
-  final case class Min(i: Int)
+  final case class Min(i: Int) extends AnyVal
   implicit val intMinMonoid =
     new Monoid[Min] {
       override def empty: Min = Min(Int.MaxValue)
@@ -27,7 +27,7 @@ object Monoid03Tuple {
   def main(args: Array[String]): Unit = {
 
     // (a) products
-    val strings =
+    val phrases =
       List(
         "Some",
         "Phrases",
@@ -40,16 +40,16 @@ object Monoid03Tuple {
       )
 
     if (false) {
-      val (phrases, chars) = strings.foldMap(s => (1, s.length))
-      println(phrases)
+      val (phraseCount, chars) = phrases.foldMap(s => (1, s.length))
+      println(phraseCount)
       println(chars)
 
       println("===============")
     }
 
     if (false) {
-      val (phrases, chars, phraseMap) = strings.foldMap(s => (1, s.length, Map(s -> 1)))
-      println(phrases)
+      val (phraseCount, chars, phraseMap) = phrases.foldMap(s => (1, s.length, Map(s -> 1)))
+      println(phraseCount)
       println(chars)
       println(phraseMap)
 
@@ -60,7 +60,7 @@ object Monoid03Tuple {
 
     if (false) {
       val (count, max, min, countMap) =
-        strings.foldMap(
+        phrases.foldMap(
           s => (1, Max(s.length), Min(s.length), Map(s.length -> Set(s)))
         )
       println(count)

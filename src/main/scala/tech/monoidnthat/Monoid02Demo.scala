@@ -8,7 +8,7 @@ object Monoid02Demo {
 
   def main(args: Array[String]): Unit = {
 
-    val strings =
+    val phrases =
       List(
         "Some",
         "Phrases",
@@ -20,7 +20,7 @@ object Monoid02Demo {
         "I"
       )
 
-    val chars = strings.foldMap(_.length)
+    val chars = phrases.foldMap(_.length)
     println(chars)
   }
 }
