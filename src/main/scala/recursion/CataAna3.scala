@@ -6,6 +6,7 @@ package recursion
 // Option[(E,B)]----f---->B
 object CataAna3 {
   // `foldRight` signature is now very close to `unfold`
+//def unfold   [E, B](f: B => Option[(E, B)]): B => List[E] =
   def foldRight[E, B](f: Option[(E, B)] => B): List[E] => B =
     new (List[E] => B) {
       kernel =>
