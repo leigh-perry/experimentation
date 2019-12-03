@@ -19,6 +19,7 @@ object CataAna8 {
         algebra(project(list).fmap(kernel))
     }
 
+  // TODO repeat for `ana`
   def unfold[E, A](f: A => Option[(E, A)]): A => List[E] =
     new (A => List[E]) {
       kernel =>
