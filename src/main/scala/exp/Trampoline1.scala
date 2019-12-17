@@ -2,7 +2,7 @@ package exp
 
 import scala.annotation.tailrec
 
-object Trampoline {
+object Trampoline1 {
   def main(args: Array[String]): Unit = {
     val result = runTrampoline(even2(999999999L))
     println(result)
