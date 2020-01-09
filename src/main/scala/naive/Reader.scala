@@ -33,13 +33,22 @@ object TestReader {
   final case class Config(serverName: String, port: Int)
 
   def main(args: Array[String]): Unit = {
+    //for {
+    //  a <- Reader[Int, Long](_ * 1000L)
+    //  b <- Reader[Int, Char](_.asInstanceOf[Char])
+    //  c <- Reader[Int, String](_ + s" / $a $b")
+    //} yield c
     val r: Reader[Int, String] =
-      for {
-        a <- Reader[Int, Long](_ * 1000L)
-        b <- Reader[Int, Char](_.asInstanceOf[Char])
-        c <- Reader[Int, String](_ + s" / $a $b")
-      } yield c
-    println(r.provide(88))
+      Reader[Int, Long](x => x * 13L)
+        .flatMap(
+          a =>
+            Reader[Int, Char](x => (a % 7 + x).asInstanceOf[Char])
+              .flatMap(
+                b => Reader[Int, String](x => x + s" ${x.asInstanceOf[Char]} / $a / $b")
+              )
+        )
+
+    println(r.provide(73))
     println("----------------")
 
     val serverName: Reader[Config, String] =
