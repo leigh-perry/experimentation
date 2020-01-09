@@ -13,9 +13,7 @@ case class Reader[R, A](provide: R => A) {
     Reader[R, B] {
       r =>
         val a: A = self.provide(r)
-        println(s"intermed $r => $a")
         val b: B = f(a).provide(r)
-        println(s"popping $a => $b")
         b
     }
 }
