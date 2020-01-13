@@ -6,7 +6,7 @@ case class Reader[R, A](provide: R => A) {
   def map[B](f: A => B): Reader[R, B] =
     flatMap[B] {
       a =>
-        Reader.point(f(a))
+        Reader.pure(f(a))
     }
 
   def flatMap[B](f: A => Reader[R, B]): Reader[R, B] =
@@ -19,7 +19,7 @@ case class Reader[R, A](provide: R => A) {
 }
 
 object Reader {
-  def point[R, A](a: => A): Reader[R, A] =
+  def pure[R, A](a: => A): Reader[R, A] =
     Reader(_ => a)
 
   def environment[R]: Reader[R, R] =
