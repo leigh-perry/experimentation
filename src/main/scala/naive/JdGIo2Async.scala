@@ -1,11 +1,11 @@
 package naive
 
-final case class Async[A](register: (Either[Throwable, A] => Async[Unit]) => Async[Unit]) {
+final case class Async[A](register: (Either[Throwable, A] => Unit) => Unit) {
   self =>
 
   final def map[B](f: A => B): Async[B] =
     Async[B] {
-      (callback: Either[Throwable, B] => Async[Unit]) =>
+      (callback: Either[Throwable, B] => Unit) =>
         self.register {
           case Left(e) => callback(Left(e))
           case Right(a) => callback(Right(f(a)))
@@ -14,7 +14,7 @@ final case class Async[A](register: (Either[Throwable, A] => Async[Unit]) => Asy
 
   final def flatMap[B](f: A => Async[B]): Async[B] =
     Async[B] {
-      (callback: Either[Throwable, B] => Async[Unit]) =>
+      (callback: Either[Throwable, B] => Unit) =>
         self.register {
           case Left(e) => callback(Left(e))
           case Right(a) => f(a).register(callback)
@@ -23,9 +23,9 @@ final case class Async[A](register: (Either[Throwable, A] => Async[Unit]) => Asy
 
   final def attempt: Async[Either[Throwable, A]] =
     new Async(
-      (callback: Either[Throwable, Either[Throwable, A]] => Async[Unit]) => {
+      (callback: Either[Throwable, Either[Throwable, A]] => Unit) => {
         val result: Either[Throwable, A] =
-          try (Right(unsafePerformIO()))
+          try (Right(unsafePerformAsync()))
           catch {
             case t: Throwable =>
               Left(t)
@@ -34,13 +34,13 @@ final case class Async[A](register: (Either[Throwable, A] => Async[Unit]) => Asy
       }
     )
 
-  final def unsafePerformIO(): A = {
+  final def unsafePerformAsync(): A = {
     @volatile var voa: Either[Throwable, A] = null
 
-    val handler: Either[Throwable, A] => Async[Unit] =
+    val handler: Either[Throwable, A] => Unit =
       (result: Either[Throwable, A]) => {
         voa = result
-        Async(())
+        ()
       }
 
     register(handler)
@@ -55,13 +55,13 @@ final case class Async[A](register: (Either[Throwable, A] => Async[Unit]) => Asy
 object Async {
   final def apply[A](a: => A): Async[A] =
     Async[A] {
-      (callback: Either[Throwable, A] => Async[Unit]) =>
+      (callback: Either[Throwable, A] => Unit) =>
         callback(Right(a))
     }
 
   final def fail[A](e: Throwable): Async[A] =
     Async[A] {
-      (callback: Either[Throwable, A] => Async[Unit]) =>
+      (callback: Either[Throwable, A] => Unit) =>
         callback(Left(e))
     }
 }
@@ -74,7 +74,7 @@ object IO_2_App {
         b <- Async("b")
       } yield a + b
 
-    println(programSuccess.attempt.unsafePerformIO())
+    println(programSuccess.attempt.unsafePerformAsync())
 
     val programFailure =
       for {
@@ -82,6 +82,6 @@ object IO_2_App {
         b <- Async.fail(new RuntimeException("oops"))
       } yield a + b
 
-    println(programFailure.attempt.unsafePerformIO())
+    println(programFailure.attempt.unsafePerformAsync())
   }
 }

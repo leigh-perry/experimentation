@@ -1,20 +1,20 @@
 package naive
 
-sealed class Sync[A](val unsafePerformIO: () => A) {
+sealed class Sync[A](val unsafePerformSync: () => A) {
   final def map[B](f: A => B): Sync[B] =
-    new Sync(() => f(unsafePerformIO()))
+    new Sync(() => f(unsafePerformSync()))
 
   final def flatMap[B](f: A => Sync[B]): Sync[B] =
     new Sync(
       () =>
-        f(unsafePerformIO())
-          .unsafePerformIO()
+        f(unsafePerformSync())
+          .unsafePerformSync()
     )
 
   final def attempt: Sync[Either[Throwable, A]] =
     new Sync(
       () =>
-        try Right(unsafePerformIO())
+        try Right(unsafePerformSync())
         catch {
           case t: Throwable =>
             Left(t)
@@ -38,7 +38,7 @@ object IO_1_App {
         b <- Sync("b")
       } yield a + b
 
-    println(programSuccess.attempt.unsafePerformIO())
+    println(programSuccess.attempt.unsafePerformSync())
 
     val programFailure =
       for {
@@ -46,6 +46,6 @@ object IO_1_App {
         b <- Sync.fail(new RuntimeException("oops"))
       } yield a + b
 
-    println(programFailure.attempt.unsafePerformIO())
+    println(programFailure.attempt.unsafePerformSync())
   }
 }
