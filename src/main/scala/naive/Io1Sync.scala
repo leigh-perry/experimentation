@@ -2,7 +2,9 @@ package naive
 
 final case class Sync[A](unsafeRunSync: () => A) {
   def map[B](f: A => B): Sync[B] =
-    flatMap(a => Sync.pure(f(a)))
+    Sync(
+      () => f(unsafeRunSync())
+    )
 
   def flatMap[B](f: A => Sync[B]): Sync[B] =
     Sync(
@@ -28,7 +30,12 @@ object Sync {
 
   def fail[A](t: Throwable): Sync[A] =
     Sync(() => throw t)
+
+  def flatten[A](s: Sync[Sync[A]]): Sync[A] =
+    s.flatMap(identity)
 }
+
+////
 
 object SyncApp {
   def main(args: Array[String]): Unit = {

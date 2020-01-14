@@ -1,10 +1,10 @@
 package naive
 
 final case class SyncE[E, A](unsafeRunEither: () => Either[E, A]) {
-  self =>
-
   def map[B](f: A => B): SyncE[E, B] =
-    flatMap(a => SyncE.pure(f(a)))
+    SyncE(
+      () => unsafeRunEither().map(f)
+    )
 
   def flatMap[B](f: A => SyncE[E, B]): SyncE[E, B] =
     SyncE(
@@ -21,18 +21,15 @@ final case class SyncE[E, A](unsafeRunEither: () => Either[E, A]) {
     )
 
   def foldM[B](failure: E => SyncE[E, B], success: A => SyncE[E, B]): SyncE[E, B] =
-    SyncE.flatten(
-      // defer
-      SyncE(
-        () =>
-          Right[E, SyncE[E, B]](
-            self.unsafeRunEither() match {
-              case Left(e) => failure(e)
-              case Right(a) => success(a)
-            }
-          )
+    SyncE
+      .pure(())   // defer
+      .flatMap(
+        _ =>
+          unsafeRunEither() match {
+            case Left(e) => failure(e)
+            case Right(a) => success(a)
+          }
       )
-    )
 
   def unsafeRunSync(): A =
     unsafeRunEither() match {
@@ -51,6 +48,8 @@ object SyncE {
   def flatten[E, A](s: SyncE[E, SyncE[E, A]]): SyncE[E, A] =
     s.flatMap(identity)
 }
+
+////
 
 object SyncEApp {
   trait AppError

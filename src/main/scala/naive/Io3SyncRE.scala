@@ -1,10 +1,10 @@
 package naive
 
 final case class SyncRE[R, E, A](unsafeRunEither: R => Either[E, A]) {
-  self =>
-
   def map[B](f: A => B): SyncRE[R, E, B] =
-    flatMap(a => SyncRE.pure(f(a)))
+    SyncRE(
+      env => unsafeRunEither(env).map(f)
+    )
 
   def flatMap[B](f: A => SyncRE[R, E, B]): SyncRE[R, E, B] =
     SyncRE(
@@ -26,7 +26,7 @@ final case class SyncRE[R, E, A](unsafeRunEither: R => Either[E, A]) {
       SyncRE[R, E, SyncRE[R, E, B]](
         env =>
           Right[E, SyncRE[R, E, B]](
-            self.unsafeRunEither(env) match {
+            unsafeRunEither(env) match {
               case Left(e) => failure(e)
               case Right(a) => success(a)
             }
@@ -36,7 +36,7 @@ final case class SyncRE[R, E, A](unsafeRunEither: R => Either[E, A]) {
 
   def provide(r: R): SyncRE[Any, E, A] =
     SyncRE(
-      _ => self.unsafeRunEither(r)
+      _ => unsafeRunEither(r)
     )
 }
 
@@ -73,6 +73,8 @@ object SyncRE {
       SyncRE.unsafeRunSyncAny(io)
   }
 }
+
+////
 
 object SyncREApp {
   trait AppError
