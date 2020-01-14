@@ -1,4 +1,4 @@
-package naive
+package naive.io
 
 final case class SyncRE[R, E, A](unsafeRunEither: R => Either[E, A]) {
   def map[B](f: A => B): SyncRE[R, E, B] =

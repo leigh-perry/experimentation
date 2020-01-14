@@ -1,4 +1,4 @@
-package naive
+package naive.io
 
 final case class Sync[A](unsafeRunSync: () => A) {
   def map[B](f: A => B): Sync[B] =

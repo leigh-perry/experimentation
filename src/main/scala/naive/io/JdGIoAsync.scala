@@ -1,4 +1,4 @@
-package naive
+package naive.io
 
 final case class Async[A](register: (Either[Throwable, A] => Unit) => Unit) {
   self =>
@@ -64,6 +64,8 @@ object Async {
         callback(Left(e))
     }
 }
+
+////
 
 object IO_2_App {
   def main(args: Array[String]): Unit = {
