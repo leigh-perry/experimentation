@@ -1,18 +1,18 @@
 package naive
 
-sealed class Sync[A](val unsafeRunSync: () => A) {
+final case class Sync[A](unsafeRunSync: () => A) {
   def map[B](f: A => B): Sync[B] =
     flatMap(a => Sync.pure(f(a)))
 
   def flatMap[B](f: A => Sync[B]): Sync[B] =
-    new Sync(
+    Sync(
       () =>
         f(unsafeRunSync())
           .unsafeRunSync()
     )
 
   def attempt: Sync[Either[Throwable, A]] =
-    new Sync(
+    Sync(
       () =>
         try Right(unsafeRunSync())
         catch {
@@ -24,10 +24,10 @@ sealed class Sync[A](val unsafeRunSync: () => A) {
 
 object Sync {
   def pure[A](a: => A): Sync[A] =
-    new Sync(() => a)
+    Sync(() => a)
 
   def fail[A](t: Throwable): Sync[A] =
-    new Sync(() => throw t)
+    Sync(() => throw t)
 }
 
 object SyncApp {

@@ -1,11 +1,13 @@
 package naive
 
-sealed class SyncE[E, A](val unsafeRunEither: () => Either[E, A]) {
+final case class SyncE[E, A](unsafeRunEither: () => Either[E, A]) {
+  self =>
+
   def map[B](f: A => B): SyncE[E, B] =
     flatMap(a => SyncE.pure(f(a)))
 
   def flatMap[B](f: A => SyncE[E, B]): SyncE[E, B] =
-    new SyncE(
+    SyncE(
       () =>
         for {
           a <- unsafeRunEither()
@@ -13,22 +15,24 @@ sealed class SyncE[E, A](val unsafeRunEither: () => Either[E, A]) {
         } yield b
     )
 
-  def flatten(s: SyncE[E, SyncE[E, A]]): SyncE[E, A] =
-    s.flatMap(identity)
-
   def attempt: SyncE[Nothing, Either[E, A]] =
-    new SyncE(
+    SyncE(
       () => Right(unsafeRunEither())
     )
 
   def foldM[B](failure: E => SyncE[E, B], success: A => SyncE[E, B]): SyncE[E, B] =
-    SyncE.pure(()).flatMap {
-      _ =>
-        unsafeRunEither() match {
-          case Left(e) => failure(e)
-          case Right(a) => success(a)
-        }
-    }
+    SyncE.flatten(
+      // defer
+      SyncE(
+        () =>
+          Right[E, SyncE[E, B]](
+            self.unsafeRunEither() match {
+              case Left(e) => failure(e)
+              case Right(a) => success(a)
+            }
+          )
+      )
+    )
 
   def unsafeRunSync(): A =
     unsafeRunEither() match {
@@ -39,10 +43,13 @@ sealed class SyncE[E, A](val unsafeRunEither: () => Either[E, A]) {
 
 object SyncE {
   def pure[E, A](a: => A): SyncE[E, A] =
-    new SyncE(() => Right(a))
+    SyncE(() => Right(a))
 
   def fail[E, A](e: E): SyncE[E, A] =
-    new SyncE(() => Left(e))
+    SyncE(() => Left(e))
+
+  def flatten[E, A](s: SyncE[E, SyncE[E, A]]): SyncE[E, A] =
+    s.flatMap(identity)
 }
 
 object SyncEApp {
