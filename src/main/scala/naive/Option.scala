@@ -1,16 +1,14 @@
-package naive.io
+package naive
 
 sealed trait Option[+A] {
-  self =>
-
   def map[B](f: A => B): Option[B] =
-    self match {
+    this match {
       case Some(a) => Some(f(a))
       case None => None
     }
 
   def flatMap[B](f: A => Option[B]): Option[B] =
-    self match {
+    this match {
       case Some(a) => f(a)
       case None => None
     }
