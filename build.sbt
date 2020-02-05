@@ -48,3 +48,5 @@ libraryDependencies += "co.fs2" %% "fs2-core" % "2.0.1"
 libraryDependencies += "co.fs2" %% "fs2-io" % "2.0.1"
 
 libraryDependencies += "io.github.stanch" % "reftree_2.12" % "1.4.0"
+
+libraryDependencies += "com.github.julien-truffaut" %%  "monocle-core"  % "2.0.0"
