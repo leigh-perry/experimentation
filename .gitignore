@@ -1,9 +1,17 @@
-_work/
+.ensime
+ensime*
+build-ci-build-container.sh
+.terraform
+*.pem
+app.*.log.gz
+*.tfstate*
+_ref
+temp*.json
 cassandra_data/
 custom-plugins/
+.idea
 .bloop
 .metals
-.vscode
 
 # Created by .ignore support plugin (hsz.mobi)
 ### JetBrains template
@@ -12,7 +20,6 @@ custom-plugins/
 
 # User-specific stuff:
 .idea
-.idea/workspace.xml
 .idea/tasks.xml
 
 # Sensitive or high-churn files:

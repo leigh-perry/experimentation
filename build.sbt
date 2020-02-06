@@ -1,52 +1,106 @@
-name := "experimentation"
-version := "1.0.1-SNAPSHOT"
+import Dependencies._
 
-scalaVersion := "2.12.10"
-//scalacOptions := Seq("-unchecked", "-deprecation", "-Xexperimental", "-feature")
-scalacOptions ++=
+val Scala_213 = "2.13.1"
+val Scala_212 = "2.12.10"
+//val Scala_211 = "2.11.12"
+
+////
+
+val projectName = "fp-experimentation"
+val organisationName = "leighperry"
+
+lazy val compilerPlugins =
+  List(
+    compilerPlugin("org.typelevel" %% "kind-projector" % Version.kindProjectorVersion)
+  )
+
+lazy val commonSettings =
   Seq(
-    "-deprecation",
+    scalaVersion := Scala_212,
+    scalacOptions ++= commonScalacOptions(scalaVersion.value),
+    fork in Test := true,
+    testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
+    name := projectName,
+    organization := organisationName,
+    updateOptions := updateOptions.value.withGigahorse(false),
+    libraryDependencies ++=
+      Seq(
+        //zioTest % Test,
+        //zioTestSbt % Test
+      ) ++ compilerPlugins
+  )
+
+lazy val crossBuiltCommonSettings = commonSettings ++ Seq(
+  crossScalaVersions := Seq(Scala_212, Scala_213)
+)
+
+lazy val misc =
+  module("misc")
+    .settings(
+      libraryDependencies ++=
+        Seq(
+          slf4j,
+          pprint,
+          scalazCore,
+          catsCore,
+          catsFree,
+          catsMtlCore,
+          catsEffect,
+          iota,
+          scalacheck,
+          minitest,
+          minitestLaws,
+          fs2Core,
+          fs2IO,
+          reftree,
+          monocle
+        )
+    )
+
+lazy val allModules = List(misc)
+
+lazy val root =
+  project
+    .in(file("."))
+    .settings(commonSettings)
+    .settings(skip in publish := true, crossScalaVersions := List())
+    .aggregate(allModules.map(x => x: ProjectReference): _*)
+    .dependsOn(allModules.map(x => x: ClasspathDep[ProjectReference]): _*)
+
+addCommandAlias("fmt", "all scalafmtSbt scalafmt test:scalafmt")
+addCommandAlias("fmtcheck", "all scalafmtSbtCheck scalafmtCheck test:scalafmtCheck")
+
+////
+
+def module(moduleName: String): Project =
+  Project(moduleName, file("modules/" + moduleName))
+    .settings(crossBuiltCommonSettings)
+    .settings(name += s"-$moduleName")
+
+def versionDependentExtraScalacOptions(scalaVersion: String) =
+  CrossVersion.partialVersion(scalaVersion) match {
+    case Some((2, minor)) if minor < 13 =>
+      Seq("-Yno-adapted-args", "-Xfuture", "-Ypartial-unification")
+    case _ => Nil
+  }
+
+def commonScalacOptions(scalaVersion: String) =
+  Seq(
     "-encoding",
     "UTF-8",
     "-feature",
     "-language:existentials",
     "-language:higherKinds",
     "-language:implicitConversions",
+    "-language:experimental.macros",
     "-unchecked",
-    //"-Xfatal-warnings",
-    "-Xlint",
-    "-Yno-adapted-args",
     "-Ywarn-dead-code",
     "-Ywarn-numeric-widen",
     "-Ywarn-value-discard",
-    "-Xfuture",
-    "-Yrangepos",
-    "-target:jvm-1.8",
-    "-Xexperimental"
-  )
+    //"-Xfatal-warnings",
+    "-deprecation",
+    "-Xlint:-unused,_"
+  ) ++
+    versionDependentExtraScalacOptions(scalaVersion)
 
-addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.10.3" /* cross CrossVersion.binary*/ )
-addCompilerPlugin("com.github.cb372" % "scala-typed-holes" % "0.1.1" cross CrossVersion.full)
-
-libraryDependencies += "org.slf4j" % "slf4j-api" % "1.7.28"
-
-libraryDependencies += "com.lihaoyi" %% "pprint" % "0.5.5"
-libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.3.0-M31"
-
-libraryDependencies += "org.typelevel" %% "cats-core" % "2.0.0"
-libraryDependencies += "org.typelevel" %% "cats-free" % "2.0.0"
-libraryDependencies += "org.typelevel" %% "cats-mtl-core" % "0.7.0"
-libraryDependencies += "org.typelevel" %% "cats-effect" % "2.0.0"
-
-libraryDependencies += "io.frees" %% "iota-core" % "0.3.10"
-
-libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.14.2" /*% "test"*/
-libraryDependencies += "io.monix" %% "minitest" % "2.7.0" /*% "test"*/
-libraryDependencies += "io.monix" %% "minitest-laws" % "2.7.0" /*% "test"*/
-
-libraryDependencies += "co.fs2" %% "fs2-core" % "2.0.1"
-libraryDependencies += "co.fs2" %% "fs2-io" % "2.0.1"
-
-libraryDependencies += "io.github.stanch" % "reftree_2.12" % "1.4.0"
-
-libraryDependencies += "com.github.julien-truffaut" %%  "monocle-core"  % "2.0.0"
+val testDependencies = "compile->compile;test->test"
