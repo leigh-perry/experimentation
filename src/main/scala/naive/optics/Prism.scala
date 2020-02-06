@@ -1,6 +1,6 @@
 package naive.optics
 
-trait Prism[S, A] extends Serializable {
+trait Prism[S, A] {
   self =>
 
   def reverseGet(a: A): S
