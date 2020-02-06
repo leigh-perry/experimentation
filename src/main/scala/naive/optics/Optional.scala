@@ -1,6 +1,6 @@
 package naive.optics
 
-trait Optional[S, A] extends Serializable {
+trait Optional[S, A] {
   self =>
 
   def set(a: A): S => S
