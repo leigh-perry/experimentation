@@ -57,7 +57,15 @@ lazy val misc =
         )
     )
 
-lazy val allModules = List(misc)
+lazy val `fp-course` =
+  module("fp-course")
+    .settings(
+      libraryDependencies ++=
+        Seq(
+        )
+    )
+
+lazy val allModules = List(misc, `fp-course`)
 
 lazy val root =
   project
