@@ -81,13 +81,7 @@ object PrismTest {
   }
 
   def prismOptional[A]: Prism[Option[A], A] =
-    Prism.prism(
-      a => Some(a),
-      _.fold[Option[A]](None) {
-        a =>
-          Some(a)
-      }
-    )
+    Prism.prism(Option(_), identity)
 
   def main(args: Array[String]): Unit = {
     println(Colour.Red.prism.getOption(Colour.Red(123)))
