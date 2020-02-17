@@ -11,10 +11,14 @@ sealed trait Xlist[+A] {
 case object Xnil extends Xlist[Nothing]
 final case class :::[A](head: A, tail: Xlist[A]) extends Xlist[A]
 
+////
+
 object Xlist {
   def apply[A](as: A*): Xlist[A] =
-    // cheat using built-in list
-    as.toList.foldRight[Xlist[A]](Xnil) {
+    fromList(as.toList)
+
+  def fromList[A](as: List[A]): Xlist[A] =
+    as.foldRight[Xlist[A]](Xnil) {
       (h: A, t: Xlist[A]) =>
         h ::: t
     }
@@ -37,10 +41,10 @@ object Xlist {
   }
 
   def product(xl: Xlist[Int]): Int =
-    xl.foldLeft[Int](_ + _, 0)
+    xl.foldLeft[Int](_ * _, 1)
 
   def sum(xl: Xlist[Int]): Int =
-    xl.foldLeft[Int](_ * _, 1)
+    xl.foldLeft[Int](_ + _, 0)
 
   def flatten[A](xl: Xlist[Xlist[A]]): Xlist[A] =
     xl.foldRight[Xlist[A]](_ ++ _, Xnil)
@@ -87,7 +91,7 @@ object Xlist {
       acc
     }
 
-    //@scala.annotation.tailrec
+    // Naive implementation is not tail recursive
     def foldRight[B](f: (A, B) => B, init: B): B =
       xl match {
         case Xnil =>
@@ -132,6 +136,8 @@ object Xlist {
       foldLeft[Xlist[A]]((l, a) => a ::: l, Xnil)
   }
 }
+
+////
 
 object ListTest {
   def main(args: Array[String]): Unit = {
