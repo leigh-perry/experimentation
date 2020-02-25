@@ -21,15 +21,15 @@ final case class SyncE[E, A](unsafeRunEither: () => Either[E, A]) {
     )
 
   def foldM[B](failure: E => SyncE[E, B], success: A => SyncE[E, B]): SyncE[E, B] =
-    SyncE
-      .pure(())   // defer
-      .flatMap(
-        _ =>
-          unsafeRunEither() match {
-            case Left(e) => failure(e)
-            case Right(a) => success(a)
-          }
-      )
+    SyncE {
+      () =>
+        unsafeRunEither() match {
+          case Left(e) =>
+            failure(e).unsafeRunEither()
+          case Right(a) =>
+            success(a).unsafeRunEither()
+        }
+    }
 
   def unsafeRunSync(): A =
     unsafeRunEither() match {
