@@ -21,18 +21,15 @@ final case class SyncRE[R, E, A](unsafeRunEither: R => Either[E, A]) {
     )
 
   def foldM[B](failure: E => SyncRE[R, E, B], success: A => SyncRE[R, E, B]): SyncRE[R, E, B] =
-    SyncRE.flatten(
-      // defer
-      SyncRE[R, E, SyncRE[R, E, B]](
-        env =>
-          Right[E, SyncRE[R, E, B]](
-            unsafeRunEither(env) match {
-              case Left(e) => failure(e)
-              case Right(a) => success(a)
-            }
-          )
-      )
-    )
+    SyncRE {
+      (env: R) =>
+        unsafeRunEither(env) match {
+          case Left(e) =>
+            failure(e).unsafeRunEither(env)
+          case Right(a) =>
+            success(a).unsafeRunEither(env)
+        }
+    }
 
   def provide(r: R): SyncRE[Any, E, A] =
     SyncRE(
