@@ -45,11 +45,10 @@ object SyncRE {
     SyncRE((_: R) => Left(e))
 
   def accessM[R, E, A](f: R => SyncRE[R, E, A]): SyncRE[R, E, A] =
-    flatten(
-      SyncRE(
-        (env: R) => Right(f(env))
-      )
-    )
+    SyncRE {
+      r =>
+        f(r).unsafeRunEither(r)
+    }
 
   def flatten[R, E, A](s: SyncRE[R, E, SyncRE[R, E, A]]): SyncRE[R, E, A] =
     s.flatMap(identity)
