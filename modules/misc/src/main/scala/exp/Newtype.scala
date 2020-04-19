@@ -2,6 +2,7 @@ package exp
 
 trait Newtype[A] {
   type Type <: A
+  type Super >: A
   def apply(a: A): Type
   def toF[F[_]](fa: F[A]): F[Type]
   def fromF[F[_]](fa: F[Type]): F[A]
@@ -10,12 +11,11 @@ trait Newtype[A] {
 object Newtype {
   def of[A]: Newtype[A] =
     new Newtype[A] {
-      type Type = A
+      override type Type = A
       override def apply(a: A): Type = a
       override def toF[F[_]](fa: F[A]): F[Type] = fa
       override def fromF[F[_]](fa: F[Type]): F[A] = fa
     }
-
 }
 
 object NewtypeApp {
@@ -23,28 +23,44 @@ object NewtypeApp {
   val Mult: Newtype[Int] = Newtype.of[Int]
   type Mult = Mult.Type
 
-  val list: List[Mult] = Mult.toF(List(1, 2, 3))
+  object C1 {
+
+    val mult1: Mult = Mult(1)
+    val asInt1: Int = mult1
+
+    val list: List[Mult] = Mult.toF(List(1, 2, 3))
+
+    ////
+
+    trait Contrav[-A] {
+      def something(x: A): Boolean
+    }
+
+    implicit val contraInt: Contrav[Int] = ???
+    implicit val contraMult: Contrav[Mult] = contraInt // Mult.toF(contraInt)
+
+    val resultMult: Boolean = implicitly[Contrav[Mult]].something(Mult(1))
+    val resultInt: Boolean = implicitly[Contrav[Int]].something(1)
+  }
 
   ////
 
-  trait Contrav[-A] {
-    def something(x: A): Boolean
+  object C2 {
+    type MultS = Mult.Super
+
+    val mult2: MultS = 2
+    val list: List[MultS] = List(1, 2, 3) // Mult.toF(List(1, 2, 3))
+
+    ////
+
+    trait Cov[+A] {
+      def something(x: Boolean): A
+    }
+
+    implicit val covMult: Cov[Mult] = ???
+    implicit val covInt: Cov[Int] = Mult.fromF(covMult)
+
+    val resultMult: MultS = implicitly[Cov[MultS]].something(true)
+    val resultInt: Int = implicitly[Cov[Int]].something(true)
   }
-
-  implicit val contraInt: Contrav[Int] = ???
-  val contraMult1: Contrav[Mult] = Mult.toF(contraInt)
-  implicit val contraMult2: Contrav[Mult] = contraInt
-
-  val resultMult: Boolean = implicitly[Contrav[Mult]].something(Mult(1))
-  val resultInt: Boolean = implicitly[Contrav[Int]].something(1)
-
-  ////
-
-  trait Cov[+A] {
-    def something(x: Boolean): A
-  }
-
-  implicit val covMult: Cov[Mult] = ???
-  val covInt: Cov[Int] = Mult.fromF(covMult)
-  implicit val covInt2: Cov[Int] = covMult
 }
