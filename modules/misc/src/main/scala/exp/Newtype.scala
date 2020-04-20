@@ -58,9 +58,10 @@ object NewtypeApp {
     }
 
     implicit val covMult: Cov[Mult] = ???
-    implicit val covInt: Cov[Int] = Mult.fromF(covMult)
+    implicit val covInt: Cov[Int] = covMult   // Mult.fromF(covMult)
 
-    val resultMult: MultS = implicitly[Cov[MultS]].something(true)
+    val resultMult: Mult = implicitly[Cov[Mult]].something(true)
+    val resultMultS: MultS = implicitly[Cov[MultS]].something(true)
     val resultInt: Int = implicitly[Cov[Int]].something(true)
   }
 }
