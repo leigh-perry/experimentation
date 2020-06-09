@@ -3,27 +3,29 @@ package exp
 import cats.Functor
 import cats.instances.list._
 
-// See https://medium.com/@olxc/yoneda-and-coyoneda-trick-f5a0321aeba4
+// See
+//    https://medium.com/@olxc/yoneda-and-coyoneda-trick-f5a0321aeba4
+//    http://blog.higher-order.com/blog/2013/11/01/free-and-yoneda/
 
 trait Yoneda[F[_], A] {
   self =>
 
-  def transform[B](f: A => B): F[B]
+  def mapF[B](f: A => B): F[B]
 
   def map[B](f: A => B): Yoneda[F, B] =
     new Yoneda[F, B] {
-      override def transform[C](g: B => C): F[C] =
-        self.transform(g compose f)
+      override def mapF[C](g: B => C): F[C] =
+        self.mapF(g compose f)
     }
 
   def run: F[A] =
-    transform(identity)
+    mapF(identity)
 }
 
 object Yoneda {
   def toYoneda[F[_]: Functor, A](fa: F[A]): Yoneda[F, A] =
     new Yoneda[F, A] {
-      override def transform[B](f: A => B): F[B] =
+      override def mapF[B](f: A => B): F[B] =
         Functor[F].map(fa)(f)
     }
 
@@ -52,20 +54,29 @@ sealed trait Coyoneda[F[_], A] {
 object Coyoneda {
   def toCoyoneda[F[_], A, B](fa: F[A])(f: A => B): Coyoneda[F, B] =
     new Coyoneda[F, B] {
-      // save original type
-      override type UnderlyingType = A
-      override val transformation: A => B =
-        f
-      override val underlyingValue: F[A] =
-        fa
+      override type UnderlyingType = A // save original type
+      override val transformation: A => B = f
+      override val underlyingValue: F[A] = fa
     }
+
+  def main(args: Array[String]): Unit = {
+    final case class Person[A](a: A) // not a functor
+
+    val personCoyo0: Coyoneda[Person, Int] = toCoyoneda(Person(42))(identity)
+    val personCoyo1: Coyoneda[Person, Int] = personCoyo0.map(_ + 1).map(_ + 2).map(_ + 3)
+
+    // nothing is executed yet
+    // define functor for Person
+    val personFunctor =
+      new Functor[Person] {
+        override def map[A, B](fa: Person[A])(f: A => B): Person[B] =
+          Person(f(fa.a))
+      }
+
+    // and then pass it to Coyoneda
+    val person: Person[Int] = personCoyo1.run(personFunctor)
+    println(person) // should yield Person(48)
+
+    // NB for Free[Coyoneda[...]], no functor is required since Free is interpreted via ~> to IO instead
+  }
 }
-
-//// Coyoneda[F, A] is isomorphic to F[A]
-//sealed abstract class Coyoneda[F[_], A] {
-//  type I
-//  val fi: F[I]
-//  val k: I => A
-//}
-
-//  type FreeC[S[_], A] = Free[Coyoneda[S, *], A]
