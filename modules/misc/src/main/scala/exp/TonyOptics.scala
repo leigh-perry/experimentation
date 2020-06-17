@@ -1,9 +1,8 @@
 package exp
 
-import cats._
-import cats.data._
-import cats.implicits._
-
+import cats.data.Const
+import cats.syntax.functor._
+import cats.{ Functor, Id }
 
 // https://blog.tmorris.net/posts/classy-optics-error-handling-scala/
 
@@ -26,7 +25,7 @@ object Person {
 
   def age[F[_]: Functor]: Optic[Function1, F, Person, Int] =
     new Optic[Function1, F, Person, Int] {
-      def run =
+      def run: (Int => F[Int]) => Person => F[Person] =
         k =>
           person => {
             k(person.age)
@@ -36,7 +35,7 @@ object Person {
 
   def name[F[_]: Functor]: Optic[Function1, F, Person, String] =
     new Optic[Function1, F, Person, String] {
-      def run =
+      def run: (String => F[String]) => Person => F[Person] =
         k =>
           person => {
             k(person.name)
