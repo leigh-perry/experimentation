@@ -4,6 +4,9 @@ import cats._
 import cats.data._
 import cats.implicits._
 
+
+// https://blog.tmorris.net/posts/classy-optics-error-handling-scala/
+
 trait Optic[~>[_, _], F[_], A, B] {
   def run: (B ~> F[B]) => A ~> F[A]
 }
