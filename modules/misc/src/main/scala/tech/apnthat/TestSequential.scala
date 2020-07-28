@@ -25,12 +25,12 @@ object TestSequential {
     //        (i1, i2) => i1 + i2
     //      }
 
-    val os = Array(1, 2).par.map(delayed(_)) // oooh errr
-    val o3 =
-      (os(0) |@| os(1)) {
-        (i1, i2) => i1 + i2
-      }
-    println(o3)
+    //val os = Array(1, 2).par.map(delayed(_)) // removed 2.13
+    //val o3 =
+    //  (os(0) |@| os(1)) {
+    //    (i1, i2) => i1 + i2
+    //  }
+    //println(o3)
   }
 }
 

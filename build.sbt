@@ -1,7 +1,7 @@
 import Dependencies._
 
-val Scala_213 = "2.13.1"
-val Scala_212 = "2.12.10"
+val Scala_213 = "2.13.3"
+//val Scala_212 = "2.12.10"
 //val Scala_211 = "2.11.12"
 
 ////
@@ -11,27 +11,25 @@ val organisationName = "leighperry"
 
 lazy val compilerPlugins =
   List(
-    compilerPlugin("org.typelevel" %% "kind-projector" % Version.kindProjectorVersion)
+    compilerPlugin("org.typelevel" %% "kind-projector" % Version.kindProjector cross CrossVersion.full)
   )
 
 lazy val commonSettings =
   Seq(
-    scalaVersion := Scala_212,
+    scalaVersion := Scala_213,
     scalacOptions ++= commonScalacOptions(scalaVersion.value),
     fork in Test := true,
-    testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
+    //testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
     name := projectName,
     organization := organisationName,
     updateOptions := updateOptions.value.withGigahorse(false),
     libraryDependencies ++=
       Seq(
-        //zioTest % Test,
-        //zioTestSbt % Test
       ) ++ compilerPlugins
   )
 
 lazy val crossBuiltCommonSettings = commonSettings ++ Seq(
-  crossScalaVersions := Seq(Scala_212, Scala_213)
+  crossScalaVersions := Seq( /*Scala_212,*/ Scala_213)
 )
 
 lazy val misc =
@@ -46,13 +44,13 @@ lazy val misc =
           catsFree,
           catsMtlCore,
           catsEffect,
-          iota,
+          //iota,
           scalacheck,
           minitest,
           minitestLaws,
           fs2Core,
           fs2IO,
-          reftree,
+          //reftree,
           monocle
         )
     )

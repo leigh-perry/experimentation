@@ -76,12 +76,12 @@ object DegoesSolution {
 
       implicit val ConsoleIO = new Console[HackIo] {
         def putStrLn(line: ConsoleOut): HackIo[Unit] = HackIo(() => println(line.en))
-        def getStrLn: HackIo[String] = HackIo(() => readLine())
+        def getStrLn: HackIo[String] = HackIo(() => System.console.readLine())
       }
     }
 
-    def putStrLn[F[_] : Console](line: ConsoleOut): F[Unit] = Console[F].putStrLn(line)
-    def getStrLn[F[_] : Console]: F[String] = Console[F].getStrLn
+    def putStrLn[F[_]: Console](line: ConsoleOut): F[Unit] = Console[F].putStrLn(line)
+    def getStrLn[F[_]: Console]: F[String] = Console[F].getStrLn
 
     trait Random[F[_]] {
       def nextInt(upper: Int): F[Int]
@@ -94,7 +94,7 @@ object DegoesSolution {
         def nextInt(upper: Int): HackIo[Int] = HackIo(() => scala.util.Random.nextInt(upper))
       }
     }
-    def nextInt[F[_] : Random](upper: Int): F[Int] = Random[F].nextInt(upper)
+    def nextInt[F[_]: Random](upper: Int): F[Int] = Random[F].nextInt(upper)
   }
 
   import stdlib._
@@ -113,16 +113,18 @@ object DegoesSolution {
     self =>
     def map[B](f: A => B): TestIO[B] =
       TestIO(
-        t => self.run(t) match {
-          case (t, a) => (t, f(a))
-        }
+        t =>
+          self.run(t) match {
+            case (t, a) => (t, f(a))
+          }
       )
 
     def flatMap[B](f: A => TestIO[B]): TestIO[B] =
       TestIO(
-        t => self.run(t) match {
-          case (t, a) => f(a).run(t)
-        }
+        t =>
+          self.run(t) match {
+            case (t, a) => f(a).run(t)
+          }
       )
 
     def eval(t: TestData): TestData = self.run(t)._1
@@ -152,39 +154,37 @@ object DegoesSolution {
 
   def parseInt(s: String): Option[Int] = Try(s.toInt).toOption
 
-  def checkAnswer[F[_] : Console](name: String, num: Int, guess: Int): F[Unit] =
-    if (num == guess) {
+  def checkAnswer[F[_]: Console](name: String, num: Int, guess: Int): F[Unit] =
+    if (num == guess)
       putStrLn(ConsoleOut.YouGuessedRight(name))
-    } else {
+    else
       putStrLn(ConsoleOut.YouGuessedWrong(name, num))
-    }
 
-  def checkContinue[F[_] : Program : Console](name: String): F[Boolean] =
+  def checkContinue[F[_]: Program: Console](name: String): F[Boolean] =
     for {
       _ <- putStrLn(ConsoleOut.DoYouWantToContinue(name))
       choice <- getStrLn.map(_.toLowerCase)
-      cont <- if (choice == "y") {
-        finish(true)
-      } else if (choice == "n") {
-        finish(false)
-      } else {
-        checkContinue(name)
-      }
+      cont <-
+        if (choice == "y")
+          finish(true)
+        else if (choice == "n")
+          finish(false)
+        else
+          checkContinue(name)
     } yield cont
 
-  def gameLoop[F[_] : Program : Console : Random](name: String): F[Unit] =
+  def gameLoop[F[_]: Program: Console: Random](name: String): F[Unit] =
     for {
       num <- nextInt(5).map(_ + 1)
       _ <- putStrLn(ConsoleOut.PleaseGuess(name))
       guess <- getStrLn
-      _ <-
-        parseInt(guess)
-          .fold(putStrLn(ConsoleOut.ThatIsNotValid(name)))((guess: Int) => checkAnswer(name, num, guess))
+      _ <- parseInt(guess)
+        .fold(putStrLn(ConsoleOut.ThatIsNotValid(name)))((guess: Int) => checkAnswer(name, num, guess))
       cont <- checkContinue(name)
       _ <- if (cont) gameLoop(name) else finish(())
     } yield ()
 
-  def main[F[_] : Program : Console : Random]: F[Unit] =
+  def main[F[_]: Program: Console: Random]: F[Unit] =
     for {
       _ <- putStrLn(ConsoleOut.WhatIsYourName)
       name <- getStrLn

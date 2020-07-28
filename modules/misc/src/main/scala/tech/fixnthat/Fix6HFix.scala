@@ -27,12 +27,12 @@ object Fix6HFix {
 
     val hIntString: Int :: String :: HNil =
       hcons(1, hcons("bar", hnil))
-    //Rendering.of(hIntString, "6-hIntString")
+    ////Rendering.of(hIntString, "6-hIntString")
     println(hIntString)
 
     val hIntStringDouble: Int :: String :: Double :: HNil =
       hcons(1, hcons("a string", hcons(1.61803, hnil)))
-    //Rendering.of(hIntStringDouble, "6-hIntStringDouble")
+    ////Rendering.of(hIntStringDouble, "6-hIntStringDouble")
     println(hIntStringDouble)
 
   }

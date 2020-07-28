@@ -1,5 +1,6 @@
 package exp
 
+/*
 import cats.data.Writer
 import cats.effect.{ExitCode, IO, IOApp}
 import cats.free.Free
@@ -8,6 +9,7 @@ import cats.syntax.applicative._
 import cats.syntax.flatMap._
 import cats.syntax.functor._
 import cats.{Applicative, Id, Monad, ~>}
+
 import iota.TListK.:::
 import iota._
 
@@ -266,3 +268,4 @@ trait LogSyntax extends LogSupport {
       alllogsupport.withLog(tr, log)
   }
 }
+*/

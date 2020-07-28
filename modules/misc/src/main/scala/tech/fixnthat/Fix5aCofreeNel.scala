@@ -12,11 +12,11 @@ object Fix5aCofreeNel {
   def main(args: Array[String]): Unit = {
     val conel1: Cofree[Option, Int] =
       Cofree[Option, Int](1, None)
-    Rendering.of(conel1, "5a-conel1")
+    //Rendering.of(conel1, "5a-conel1")
 
     val conel12: Cofree[Option, Int] =
       Cofree[Option, Int](2, Some(conel1))
-    Rendering.of(conel12, "5a-conel12")
+    //Rendering.of(conel12, "5a-conel12")
 
     println(conel12)
   }

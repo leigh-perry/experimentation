@@ -32,7 +32,7 @@ object Fix2Type {
     val alist: Fix[FList[Int, ?]] = fcons(1, fcons(2, fnil))
 
     println(alist)
-    Rendering.of(alist, "2-alist")
+    //Rendering.of(alist, "2-alist")
   }
 
   def fnil[A] =

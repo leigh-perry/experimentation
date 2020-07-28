@@ -33,10 +33,10 @@ object Fix4ComposeListNel {
       // type CNel[A] = Fix[Nested[(A, ?), Option, ?]]
 
       val nel1 = nelCons((1, Some(nelCons((-1, None)))))
-      Rendering.of(nel1, "4-nel1")
+      //Rendering.of(nel1, "4-nel1")
 
       val nel12 = nelCons((2, Some(nel1)))
-      Rendering.of(nel12, "4-nel12")
+      //Rendering.of(nel12, "4-nel12")
 
       println(nel12)
     }
@@ -46,13 +46,13 @@ object Fix4ComposeListNel {
       // type CList[A] = Fix[Nested[Option, (A, ?), ?]]
 
       val listNil: Fix[Nested[Option, (Int, ?), ?]] = listCons(None)
-      Rendering.of(listNil, "4-listNil")
+      //Rendering.of(listNil, "4-listNil")
 
       val list1 = listCons(Some((1, listNil)))
-      Rendering.of(list1, "4-list1")
+      //Rendering.of(list1, "4-list1")
 
       val list12 = listCons(Some((2, list1)))
-      Rendering.of(list12, "4-list12")
+      //Rendering.of(list12, "4-list12")
 
       println(list12)
     }

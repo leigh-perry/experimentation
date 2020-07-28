@@ -1,5 +1,7 @@
 package exp
 
+object Rendering {}
+/*
 import java.nio.file.Paths
 
 import reftree.core.ToRefTree
@@ -39,3 +41,4 @@ object Rendering {
       .render(filename)
   }
 }
+*/
