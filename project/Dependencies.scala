@@ -1,27 +1,27 @@
 import sbt._
 object Dependencies {
   object Version {
-    val kindProjector = "0.11.0"
+    val kindProjector = "0.11.3"
 
     val slf4j = "1.7.30"
-    val pprint = "0.5.9"
-    val scalazCore = "7.3.1"
+    val pprint = "0.6.1"
+    val scalazCore = "7.3.3"
 
-    val catsCore = "2.1.1"
+    val catsCore = "2.4.2"
     val catsFree = catsCore
     val catsMtlCore = "0.7.1"
-    val catsEffect = "2.0.0"
+    val catsEffect = "2.3.3"
 
     //val iota = "0.3.10"
-    val scalacheck = "1.14.3"
-    val minitest = "2.8.2"
+    val scalacheck = "1.15.3"
+    val minitest = "2.9.3"
     val minitestLaws = minitest
 
-    val fs2Core = "2.4.2"
+    val fs2Core = "2.5.3"
     val fs2IO = fs2Core
 
     //val reftree = "1.4.0"
-    val monocle = "2.0.5"
+    val monocle = "2.1.0"
   }
 
   val slf4j = "org.slf4j" % "slf4j-api" % Version.slf4j
