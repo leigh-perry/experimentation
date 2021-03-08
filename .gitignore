@@ -9,6 +9,7 @@ _temp*
 cassandra_data/
 custom-plugins/
 project/metals.sbt
+.bsp
 
 # Created by .ignore support plugin (hsz.mobi)
 ### JetBrains template

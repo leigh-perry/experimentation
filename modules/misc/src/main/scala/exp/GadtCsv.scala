@@ -77,11 +77,15 @@ object GadtCsv {
         rowsOfColumns.traverse(_.get(index.toLong))
     }
 
-  def getColumnByNumber[I](index: Int, csv: Csv[I]): Option[List[String]] =
+  def getColumnByNumber[I](index: Int, csv: Csv[I]): Option[List[String]] = {
+    def getColumn(index: Int, rowsOfColumns: List[List[String]]) =
+      rowsOfColumns.traverse(_.get(index.toLong))
+
     csv match {
-      case Csv.NamedCsv(_, rowsOfColumns) => rowsOfColumns.traverse(_.get(index.toLong))
-      case Csv.NumberedCsv(rowsOfColumns) => rowsOfColumns.traverse(_.get(index.toLong))
+      case Csv.NamedCsv(_, rowsOfColumns) => getColumn(index, rowsOfColumns)
+      case Csv.NumberedCsv(rowsOfColumns) => getColumn(index, rowsOfColumns)
     }
+  }
 
   def getHeaders(csv: Csv[String]): List[String] =
     csv match {
